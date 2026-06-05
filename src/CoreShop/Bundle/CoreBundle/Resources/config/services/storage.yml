@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\CoreBundle\Storage\SessionStorage:
+        arguments:
+            - '@request_stack'
+
+    CoreShop\Bundle\CoreBundle\Storage\CookieStorage:
+        tags:
+            - { name: kernel.event_subscriber }

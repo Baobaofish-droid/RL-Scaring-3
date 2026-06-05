@@ -1,0 +1,37 @@
+CoreShop\Component\Shipping\Model\Carrier:
+    exclusion_policy: ALL
+    xml_root_name: carrier
+    properties:
+        id:
+            expose: true
+            type: integer
+            xml_attribute: true
+            groups: [List, Detailed]
+        identifier:
+            expose: true
+            type: string
+            groups: [List, Detailed]
+        trackingUrl:
+            expose: true
+            type: string
+            groups: [Detailed]
+        hideFromCheckout:
+            expose: true
+            type: boolean
+            groups: [Detailed]
+        logo:
+            expose: true
+            type: pimcoreAsset
+            groups: [Detailed]
+        taxCalculationStrategy:
+            expose: true
+            type: string
+            groups: [Detailed]
+        shippingRules:
+            expose: true
+            type: ArrayCollection
+            groups: [Detailed]
+        translations:
+            expose: true
+            type: ArrayCollection
+            groups: [Detailed]

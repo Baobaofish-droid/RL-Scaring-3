@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\OrderBundle\Command\CartExpireCommand:
+        arguments:
+            - '@CoreShop\Bundle\OrderBundle\Expiration\CartExpiration'
+            - '%coreshop.storage_list.expiration.order.params%'
+        tags:
+          - { name: console.command, command: coreshop:cart:expire }
+
+    CoreShop\Bundle\OrderBundle\Command\OrderExpireCommand:
+        arguments:
+            - '@CoreShop\Bundle\OrderBundle\Expiration\OrderExpiration'
+            - '%coreshop.storage_list.expiration.order.params%'
+        tags:
+          - { name: console.command, command: coreshop:order:expire }

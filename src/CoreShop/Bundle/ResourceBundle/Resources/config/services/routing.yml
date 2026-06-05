@@ -1,0 +1,12 @@
+services:
+    CoreShop\Bundle\ResourceBundle\Routing\RouteFactoryInterface: '@CoreShop\Bundle\ResourceBundle\Routing\RouteFactory'
+    CoreShop\Bundle\ResourceBundle\Routing\RouteFactory: ~
+
+    CoreShop\Bundle\ResourceBundle\Routing\ResourceLoader:
+        arguments:
+            - '@CoreShop\Component\Resource\Metadata\RegistryInterface'
+            - '@CoreShop\Bundle\ResourceBundle\Routing\RouteFactoryInterface'
+            - '%coreshop.admin.route.backend_requirement%'
+            - '%kernel.environment%'
+        tags:
+            - { name: routing.loader }

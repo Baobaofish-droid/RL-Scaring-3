@@ -1,0 +1,110 @@
+parameters:
+    coreshop.form.type.order.payment.validation_groups: [coreshop_revise]
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Order\PaymentType:
+        arguments:
+            - '%coreshop.model.order.class%'
+            - '%coreshop.form.type.order.payment.validation_groups%'
+        tags:
+            - {name: form.type}
+
+    CoreShop\Component\Core\Order\Transformer\OrderToShipmentTransformer:
+        decorates: CoreShop\Component\Order\Transformer\OrderToShipmentTransformer
+        decoration_priority: 10
+        arguments:
+            - '@CoreShop\Component\Core\Order\Transformer\OrderToShipmentTransformer.inner'
+
+    CoreShop\Component\Core\Order\Transformer\OrderItemToShipmentItemTransformer:
+        decorates: CoreShop\Component\Order\Transformer\OrderItemToShipmentItemTransformer
+        decoration_priority: 10
+        arguments:
+            - '@CoreShop\Component\Core\Order\Transformer\OrderItemToShipmentItemTransformer.inner'
+
+    coreshop.order.number_generator.prefix_suffix:
+        class: CoreShop\Component\Core\Order\NumberGenerator\SaleNumberGenerator
+        decorates: coreshop.order.number_generator.default
+        arguments:
+            - '@coreshop.order.number_generator.prefix_suffix.inner'
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+            - 'system.order.prefix'
+            - 'system.order.suffix'
+
+    coreshop.quote.number_generator.prefix_suffix:
+        class: CoreShop\Component\Core\Order\NumberGenerator\SaleNumberGenerator
+        decorates: coreshop.quote.number_generator.default
+        arguments:
+            - '@coreshop.quote.number_generator.prefix_suffix.inner'
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+            - 'system.quote.prefix'
+            - 'system.quote.suffix'
+
+    coreshop.order_invoice.number_generator.prefix_suffix:
+        class: CoreShop\Component\Core\Order\NumberGenerator\SaleNumberGenerator
+        decorates: coreshop.order_invoice.number_generator.default
+        arguments:
+            - '@coreshop.order_invoice.number_generator.prefix_suffix.inner'
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+            - 'system.invoice.prefix'
+            - 'system.invoice.suffix'
+
+    coreshop.order_shipment.number_generator.prefix_suffix:
+        class: CoreShop\Component\Core\Order\NumberGenerator\SaleNumberGenerator
+        decorates: coreshop.order_shipment.number_generator.default
+        arguments:
+            - '@coreshop.order_shipment.number_generator.prefix_suffix.inner'
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+            - 'system.shipment.prefix'
+            - 'system.shipment.suffix'
+
+    CoreShop\Component\Core\Order\OrderMailProcessorInterface: '@CoreShop\Bundle\CoreBundle\Order\OrderMailProcessor'
+    CoreShop\Bundle\CoreBundle\Order\OrderMailProcessor:
+        arguments:
+           - '@monolog.logger.pimcore'
+           - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+           - '@coreshop.repository.order_invoice'
+           - '@coreshop.repository.order_shipment'
+           - '@CoreShop\Component\Order\Renderer\OrderDocumentRendererInterface'
+           - '@CoreShop\Bundle\ThemeBundle\Service\ThemeHelperInterface'
+           - '@CoreShop\Component\Pimcore\Mail\MailProcessorInterface'
+
+    CoreShop\Component\Core\Order\Modifier\CartItemQuantityModifier:
+        decorates: coreshop.cart_item.quantity_modifier
+        arguments:
+            $eventDispatcher: '@event_dispatcher'
+
+    coreshop.cart_item.quantity_modifier.backend:
+        class: CoreShop\Component\Core\Order\Modifier\CartItemQuantityModifier
+        arguments:
+            - true
+
+    CoreShop\Component\Core\Cart\CartContextResolver:
+        decorates: 'CoreShop\Component\Order\Cart\CartContextResolver'
+        arguments:
+            - '@CoreShop\Component\Core\Cart\CartContextResolver.inner'
+
+
+    CoreShop\Component\Order\Committer\OrderCommitterInterface: '@CoreShop\Component\Core\Order\Committer\OrderCommitter'
+    CoreShop\Component\Core\Order\Committer\OrderCommitter:
+        arguments:
+            - '@CoreShop\Component\Order\Manager\CartManagerInterface'
+            - '@CoreShop\Component\Resource\Service\FolderCreationServiceInterface'
+            - '@coreshop.order.number_generator.default'
+            - '@CoreShop\Component\Pimcore\DataObject\ObjectClonerInterface'
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplier'
+
+    CoreShop\Component\Order\Committer\QuoteCommitterInterface: '@CoreShop\Component\Core\Order\Committer\QuoteCommitter'
+    CoreShop\Component\Core\Order\Committer\QuoteCommitter:
+        arguments:
+            - '@CoreShop\Component\Order\Manager\CartManagerInterface'
+            - '@CoreShop\Component\Resource\Service\FolderCreationServiceInterface'
+            - '@coreshop.quote.number_generator.default'
+            - '@CoreShop\Component\Pimcore\DataObject\ObjectClonerInterface'
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplier'
+
+    CoreShop\Bundle\CoreBundle\Twig\AddToCartExtension:
+        tags:
+            - { name: twig.extension }

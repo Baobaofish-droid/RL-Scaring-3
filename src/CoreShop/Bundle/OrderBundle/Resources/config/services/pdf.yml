@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Order\Renderer\OrderDocumentRendererInterface: '@CoreShop\Bundle\OrderBundle\Renderer\OrderDocumentPdfRenderer'
+    CoreShop\Bundle\OrderBundle\Renderer\OrderDocumentPdfRenderer:
+        arguments:
+            - '@CoreShop\Component\Pimcore\Print\PrintablePdfRendererInterface'
+            - '@CoreShop\Bundle\ThemeBundle\Service\ThemeHelperInterface'
+
+    CoreShop\Bundle\OrderBundle\Renderer\AssetOrderDocumentPdfRenderer:
+        decorates: CoreShop\Component\Order\Renderer\OrderDocumentRendererInterface
+        arguments:
+            - '@CoreShop\Bundle\OrderBundle\Renderer\AssetOrderDocumentPdfRenderer.inner'
+            - '%kernel.environment%'

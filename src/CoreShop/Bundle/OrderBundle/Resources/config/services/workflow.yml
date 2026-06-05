@@ -1,0 +1,124 @@
+parameters:
+    coreshop.workflow.include_invoice_state_to_complete_order: false
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\OrderBundle\StateResolver\OrderStateResolver:
+        public: true
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Manager\StateMachineManagerInterface'
+            - '%coreshop.workflow.include_invoice_state_to_complete_order%'
+
+    CoreShop\Bundle\OrderBundle\StateResolver\OrderPaymentStateResolver:
+        public: true
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Manager\StateMachineManagerInterface'
+            - '@coreshop.repository.payment'
+
+    CoreShop\Bundle\OrderBundle\StateResolver\OrderShippingStateResolver:
+        public: true
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Manager\StateMachineManagerInterface'
+            - '@coreshop.repository.order_shipment'
+            - '@coreshop.order.shipment.processable'
+
+    CoreShop\Bundle\OrderBundle\StateResolver\OrderInvoiceStateResolver:
+        public: true
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Manager\StateMachineManagerInterface'
+            - '@coreshop.repository.order_invoice'
+            - '@coreshop.order.invoice.processable'
+
+    coreshop.state_machine.marking_store.single_state.order_payment_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - paymentState
+
+    coreshop.state_machine.marking_store.order_payment_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.order_payment_state'
+
+    coreshop.state_machine.marking_store.single_state.order_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - orderState
+
+    coreshop.state_machine.marking_store.order_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.order_state'
+
+    coreshop.state_machine.marking_store.single_state.quote_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - quoteState
+
+    coreshop.state_machine.marking_store.quote_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.quote_state'
+
+    coreshop.state_machine.marking_store.single_state.order_shipment_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - shippingState
+
+    coreshop.state_machine.marking_store.order_sales_type_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.order_sales_type_state'
+            - false
+
+    coreshop.state_machine.marking_store.single_state.order_sales_type_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - saleState
+
+    coreshop.state_machine.marking_store.order_shipment_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.order_shipment_state'
+
+    coreshop.state_machine.marking_store.single_state.order_invoice_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - invoiceState
+
+    coreshop.state_machine.marking_store.order_invoice_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.order_invoice_state'
+
+    coreshop.state_machine.marking_store.single_state.shipment_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - state
+
+    coreshop.state_machine.marking_store.single_state.invoice_state:
+        class: Symfony\Component\Workflow\MarkingStore\MethodMarkingStore
+        arguments:
+            - true
+            - state
+
+    coreshop.state_machine.marking_store.shipment_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.shipment_state'
+
+    coreshop.state_machine.marking_store.invoice_pimcore_marking_store:
+        class: CoreShop\Bundle\WorkflowBundle\MarkingStore\PimcorePersistentMarkingStore
+        arguments:
+            - '@coreshop.state_machine.marking_store.single_state.invoice_state'
+
+    CoreShop\Component\Order\Modifier\ImmutabilityModifierInterface: '@CoreShop\Component\Order\Modifier\ImmutabilityModifier'
+    CoreShop\Component\Order\Modifier\ImmutabilityModifier: ~

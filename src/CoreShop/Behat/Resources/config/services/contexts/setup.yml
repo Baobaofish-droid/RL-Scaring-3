@@ -1,0 +1,387 @@
+services:
+    _defaults:
+        public: true
+
+    coreshop.behat.context.setup.product:
+        class: CoreShop\Behat\Context\Setup\ProductContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.product'
+            - '@coreshop.factory.product_unit_definitions'
+            - '@coreshop.factory.product_unit_definition'
+            - '@coreshop.factory.product_unit_definition_price'
+            - '@CoreShop\Component\Core\Product\Cloner\ProductUnitDefinitionsCloner'
+            - '@CoreShop\Component\Core\Product\Cloner\ProductQuantityPriceRulesCloner'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.product_specific_price_rule:
+        class: CoreShop\Behat\Context\Setup\ProductSpecificPriceRuleContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@form.factory'
+            - '@coreshop.form_registry.product_specific_price_rule.conditions'
+            - '@coreshop.form_registry.product_specific_price_rule.actions'
+            - '@coreshop.factory.product_specific_price_rule'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.store:
+        class: CoreShop\Behat\Context\Setup\StoreContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.store'
+            - '@coreshop.factory.currency'
+            - '@coreshop.factory.country'
+            - '@CoreShop\Component\Store\Context\FixedStoreContext'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.category:
+        class: CoreShop\Behat\Context\Setup\CategoryContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.category'
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.country:
+        class: CoreShop\Behat\Context\Setup\CountryContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.country'
+            - '@coreshop.repository.country'
+            - '@CoreShop\Component\Address\Context\FixedCountryContext'
+            - '%kernel.project_dir%'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.currency:
+        class: CoreShop\Behat\Context\Setup\CurrencyContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.currency'
+            - '@coreshop.repository.currency'
+            - '@CoreShop\Component\Currency\Context\FixedCurrencyContext'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.customer:
+        class: CoreShop\Behat\Context\Setup\CustomerContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.customer'
+            - '@coreshop.factory.user'
+            - '@CoreShop\Component\Customer\Context\FixedCustomerContext'
+            - '@coreshop.factory.address'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.customer_group:
+        class: CoreShop\Behat\Context\Setup\CustomerGroupContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.customer_group'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.zone:
+        class: CoreShop\Behat\Context\Setup\ZoneContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.zone'
+            - '@coreshop.repository.zone'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.product_price_rule:
+        class: CoreShop\Behat\Context\Setup\ProductPriceRuleContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@form.factory'
+            - '@coreshop.form_registry.product_price_rule.conditions'
+            - '@coreshop.form_registry.product_price_rule.actions'
+            - '@coreshop.factory.product_price_rule'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.exchange_rate:
+        class: CoreShop\Behat\Context\Setup\ExchangeRateContext
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.exchange_rate'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.tax_rate:
+        class: CoreShop\Behat\Context\Setup\TaxRateContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.tax_rate'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.tax_rule_group:
+        class: CoreShop\Behat\Context\Setup\TaxRuleGroupContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.tax_rule_group'
+            - '@coreshop.factory.tax_rule'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.cart:
+        class: CoreShop\Behat\Context\Setup\CartContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@CoreShop\Component\Order\Context\CartContextInterface'
+            - '@CoreShop\Component\Order\Cart\CartModifierInterface'
+            - '@CoreShop\Component\Core\Order\Modifier\CartItemQuantityModifier'
+            - '@CoreShop\Component\Order\Manager\CartManagerInterface'
+            - '@CoreShop\Bundle\OrderBundle\Factory\AddToCartFactoryInterface'
+            - '@coreshop.factory.order_item'
+            - '@form.factory'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.shipping:
+        class: CoreShop\Behat\Context\Setup\ShippingContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@form.factory'
+            - '@coreshop.form_registry.shipping_rule.conditions'
+            - '@coreshop.form_registry.shipping_rule.actions'
+            - '@coreshop.factory.carrier'
+            - '@coreshop.factory.shipping_rule'
+            - '@coreshop.factory.shipping_rule_group'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.address:
+        class: CoreShop\Behat\Context\Setup\AddressContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.address'
+            - '@coreshop.repository.address'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.index:
+        class: CoreShop\Behat\Context\Setup\IndexContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.behat.class_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.index'
+            - '@coreshop.registry.index.worker'
+            - '@coreshop.factory.index_column'
+            - '@CoreShop\Component\Index\Service\IndexUpdaterServiceInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.filter:
+        class: CoreShop\Behat\Context\Setup\FilterContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.filter'
+            - '@coreshop.factory.filter_condition'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.pimcore_class: '@CoreShop\Bundle\TestBundle\Context\Setup\ClassContext'
+
+    coreshop.behat.context.setup.order:
+        class: CoreShop\Behat\Context\Setup\OrderContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@CoreShop\Component\Store\Context\StoreContextInterface'
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.order_shipment:
+        class: CoreShop\Behat\Context\Setup\OrderShipmentContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@CoreShop\Component\Order\Transformer\OrderToShipmentTransformer'
+            - '@coreshop.factory.order_shipment'
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.order_invoice:
+        class: CoreShop\Behat\Context\Setup\OrderInvoiceContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@CoreShop\Component\Order\Transformer\OrderToInvoiceTransformer'
+            - '@coreshop.factory.order_invoice'
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.locale:
+        class: CoreShop\Behat\Context\Setup\LocaleContext
+        arguments:
+            - '@CoreShop\Component\Locale\Context\FixedLocaleContext'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.payment:
+        class: CoreShop\Behat\Context\Setup\PaymentContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@form.factory'
+            - '@coreshop.form_registry.payment_provider_rule.conditions'
+            - '@coreshop.form_registry.payment_provider_rule.actions'
+            - '@coreshop.factory.payment'
+            - '@coreshop.factory.payment_provider'
+            - '@coreshop.factory.gateway_config'
+            - '@coreshop.factory.payment_provider_rule'
+            - '@coreshop.factory.payment_provider_rule_group'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.manufacturer:
+        class: CoreShop\Behat\Context\Setup\ManufacturerContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.manufacturer'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.index_condition:
+        class: CoreShop\Behat\Context\Setup\IndexConditionContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.cart_price_rule:
+        class: CoreShop\Behat\Context\Setup\CartPriceRuleContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@form.factory'
+            - '@coreshop.form_registry.cart_price_rule.conditions'
+            - '@coreshop.form_registry.cart_price_rule.actions'
+            - '@coreshop.factory.cart_price_rule'
+            - '@coreshop.repository.cart_price_rule_voucher_code'
+            - '@CoreShop\Component\Order\Cart\Rule\CartPriceRuleProcessorInterface'
+            - '@CoreShop\Component\Order\Manager\CartManagerInterface'
+            - '@coreshop.factory.cart_price_rule_voucher_code'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.cart_price_rule_voucher_code:
+        class: CoreShop\Behat\Context\Setup\CartPriceRuleVoucherCodeContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@CoreShop\Component\Order\Generator\CodeGeneratorCheckerInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.product_quantity_price_rule:
+        class: CoreShop\Behat\Context\Setup\ProductQuantityPriceRuleContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.product_quantity_price_rule_range'
+            - '@form.factory'
+            - '@coreshop.form_registry.product_quantity_price_rules.conditions'
+            - '@coreshop.factory.product_quantity_price_rule'
+            - '@coreshop.repository.product'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.product_unit:
+        class: CoreShop\Behat\Context\Setup\ProductUnitContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@doctrine.orm.entity_manager'
+            - '@coreshop.factory.product_unit'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.version:
+        class: CoreShop\Behat\Context\Setup\VersionContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.recycle_bin:
+        class: CoreShop\Behat\Context\Setup\RecycleBinContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.frontend_security:
+        class: CoreShop\Behat\Context\Setup\FrontendSecurityContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.security_service.frontend'
+            - '@coreshop.repository.user'
+            - '@coreshop.factory.customer'
+            - '@coreshop.factory.user'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.optimistic_entity_lock:
+        class: CoreShop\Behat\Context\Setup\OptimisticEntityLockContext
+        arguments:
+            - '@CoreShop\Bundle\OptimisticEntityLockBundle\Manager\EntityLockManagerInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.backend_security:
+        class: CoreShop\Behat\Context\Setup\BackendSecurityContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.security_service.backend'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.configuration:
+        class: CoreShop\Behat\Context\Setup\ConfigurationContext
+        arguments:
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.variant:
+        class: CoreShop\Behat\Context\Setup\VariantContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+            - '@coreshop.factory.attribute_group'
+            - '@coreshop.factory.attribute_color'
+            - '@coreshop.factory.attribute_value'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.log:
+        class: CoreShop\Behat\Context\Setup\LogContext
+        arguments:
+            - '@behat.mink'
+            - '%kernel.project_dir%/etc/build'
+        tags:
+            - { name: fob.context_service }
+
+    coreshop.behat.context.setup.cache:
+        class: CoreShop\Behat\Context\Setup\CacheContext
+        arguments:
+            - '@coreshop.behat.shared_storage'
+        tags:
+            - { name: fob.context_service }

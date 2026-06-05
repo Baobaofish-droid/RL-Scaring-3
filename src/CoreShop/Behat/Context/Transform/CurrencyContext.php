@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Behat\Context\Transform;
+
+use Behat\Behat\Context\Context;
+use CoreShop\Bundle\TestBundle\Service\SharedStorageInterface;
+use CoreShop\Component\Core\Model\CurrencyInterface;
+use CoreShop\Component\Core\Repository\CurrencyRepositoryInterface;
+use Webmozart\Assert\Assert;
+
+final class CurrencyContext implements Context
+{
+    public function __construct(
+        private SharedStorageInterface $sharedStorage,
+        private CurrencyRepositoryInterface $currencyRepository,
+    ) {
+    }
+
+    /**
+     * @Transform /^currency "([^"]+)"$/
+     */
+    public function getCurrencyByIso($iso): CurrencyInterface
+    {
+        /**
+         * @var CurrencyInterface[] $currencies
+         */
+        $currencies = $this->currencyRepository->findBy(['isoCode' => $iso]);
+
+        Assert::eq(
+            count($currencies),
+            1,
+            sprintf('%d currencies has been found with iso "%s".', count($currencies), $iso),
+        );
+
+        return reset($currencies);
+    }
+
+    /**
+     * @Transform /^currency$/
+     */
+    public function latestCurrency(): CurrencyInterface
+    {
+        return $this->sharedStorage->get('currency');
+    }
+}

@@ -1,0 +1,74 @@
+imports:
+    - { resource: services/form.yml }
+    - { resource: services/extension.yml }
+    - { resource: services/factory.yml }
+
+services:
+    _defaults:
+        public: true
+
+    coreshop.form_registry.payum_gateway_config:
+        class: CoreShop\Bundle\ResourceBundle\Form\Registry\FormTypeRegistry
+
+    CoreShop\Bundle\PayumBundle\Action\ResolveNextRouteAction:
+        tags:
+            - { name: payum.action, all: true, alias: coreshop.resolve_next_route }
+
+
+    CoreShop\Bundle\PayumBundle\Action\AuthorizePaymentAction:
+        tags:
+            - { name: payum.action, all: true, alias: coreshop.authorize_payment }
+
+    CoreShop\Bundle\PayumBundle\Action\CapturePaymentAction:
+        tags:
+            - { name: payum.action, all: true, alias: coreshop.capture_payment }
+
+    CoreShop\Bundle\PayumBundle\Action\ExecuteSameRequestWithPaymentDetailsAction:
+        tags:
+            - { name: payum.action, all: true }
+
+    CoreShop\Bundle\PayumBundle\Action\ConfirmOrderAction:
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface'
+        tags:
+            - { name: payum.action, all: true, alias: coreshop.confirm_order }
+
+    # Offline Payment
+    CoreShop\Bundle\PayumBundle\Action\Offline\ConvertPaymentAction:
+        tags:
+            - { name: payum.action, factory: offline, alias: coreshop.offline.convert_payment }
+
+    CoreShop\Bundle\PayumBundle\Action\Offline\ResolveNextRouteAction:
+        arguments:
+            - '@coreshop.repository.order'
+        tags:
+            - { name: payum.action, factory: offline, alias: coreshop.offline.resolve_next_route }
+
+    CoreShop\Bundle\PayumBundle\Action\Offline\ConfirmOrderAction:
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface'
+        tags:
+            - { name: payum.action, factory: offline, alias: coreshop.offline.confirm_order }
+
+    CoreShop\Bundle\PayumBundle\Action\Offline\StatusAction:
+        tags:
+            - { name: payum.action, factory: offline, alias: coreshop.offline.status }
+
+    # PayPal Payment
+    CoreShop\Bundle\PayumBundle\Action\Paypal\ExpressCheckout\ConvertPaymentAction:
+        arguments:
+            - '%coreshop.currency.decimal_factor%'
+            - '%coreshop.currency.decimal_precision%'
+        tags:
+            - { name: payum.action, factory: paypal_express_checkout, alias: coreshop.paypal_express_checkout.convert_payment }
+
+    CoreShop\Bundle\PayumBundle\EventListener\TransactionListener:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    CoreShop\Bundle\PayumBundle\CoreGatewayFactoryBuilder:
+        decorates: 'payum.core_gateway_factory_builder'
+        arguments:
+            - '@service_container'

@@ -1,0 +1,18 @@
+default:
+    suites:
+        domain_index_condition:
+            contexts:
+                - coreshop.behat.context.hook.pimcore_setup
+                - coreshop.behat.context.hook.coreshop_setup
+
+                - CoreShop\Bundle\TestBundle\Context\Hook\DoctrineORMContext
+                - coreshop.behat.context.hook.pimcore_dao
+
+                - CoreShop\Bundle\TestBundle\Context\Transform\SharedStorageContext
+                - coreshop.behat.context.transform.index_condition
+
+                - coreshop.behat.context.setup.index_condition
+
+                - coreshop.behat.context.domain.index_condition
+            filters:
+                tags: "@domain&&@index_condition"

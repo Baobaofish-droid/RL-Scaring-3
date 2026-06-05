@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Behat\Context\Hook;
+
+use Behat\Behat\Context\Context;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\EntityManagerInterface;
+
+final class DoctrineORMContext implements Context
+{
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+    ) {
+    }
+
+    /**
+     * @BeforeScenario
+     */
+    public function purgeDatabase(): void
+    {
+        $this->entityManager->getConnection()->getConfiguration()->setMiddlewares(
+            [new \Doctrine\DBAL\Logging\Middleware(new \Psr\Log\NullLogger())],
+        );
+
+        $purger = new ORMPurger($this->entityManager);
+        $purger->purge();
+        $this->entityManager->clear();
+    }
+}

@@ -1,0 +1,50 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Core\Context\ShopperContextInterface: '@CoreShop\Component\Core\Context\ShopperContext'
+    CoreShop\Component\Core\Context\ShopperContext:
+        lazy: true
+        arguments:
+            - '@CoreShop\Component\Store\Context\StoreContextInterface'
+            - '@CoreShop\Component\Currency\Context\CurrencyContextInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@CoreShop\Component\Address\Context\CountryContextInterface'
+            - '@CoreShop\Component\Customer\Context\CustomerContextInterface'
+            - '@CoreShop\Component\Order\Context\CartContextInterface'
+
+    CoreShop\Component\Core\Currency\CurrencyStorageInterface: '@CoreShop\Component\Core\Currency\CurrencyStorage'
+    CoreShop\Component\Core\Currency\CurrencyStorage:
+        arguments:
+            - '@CoreShop\Bundle\CoreBundle\Storage\CookieStorage'
+            - '@coreshop.repository.currency'
+
+    CoreShop\Component\Core\Context\Currency\StorageBasedCurrencyContext:
+        arguments:
+            - '@CoreShop\Component\Store\Context\StoreContextInterface'
+            - '@CoreShop\Component\Core\Currency\CurrencyStorageInterface'
+        tags:
+            - { name: coreshop.context.currency }
+
+    CoreShop\Component\Core\Context\Currency\StoreAwareCurrencyContext:
+        decorates: CoreShop\Component\Currency\Context\CurrencyContextInterface
+        decoration_priority: 256
+        arguments:
+            - '@CoreShop\Component\Core\Context\Currency\StoreAwareCurrencyContext.inner'
+            - '@CoreShop\Component\Store\Context\StoreContextInterface'
+            - '@coreshop.repository.currency'
+
+    # country store resolver
+    CoreShop\Component\Core\Context\StoreBasedCartContext:
+        decorates: coreshop.storage_list.context.factory.order
+        arguments:
+            - '@CoreShop\Component\Core\Context\StoreBasedCartContext.inner'
+            - '@CoreShop\Component\Core\Context\ShopperContextInterface'
+
+    CoreShop\Component\Core\Context\Country\StoreAwareCountryContext:
+        decorates: CoreShop\Component\Address\Context\CountryContextInterface
+        decoration_priority: 256
+        arguments:
+            - '@CoreShop\Component\Core\Context\Country\StoreAwareCountryContext.inner'
+            - '@CoreShop\Component\Store\Context\StoreContextInterface'
+

@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\ProductBundle\Form\Type\Unit;
+
+use CoreShop\Bundle\ProductBundle\Form\Type\ProductSelectionType;
+use CoreShop\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use CoreShop\Component\Product\Model\ProductUnitDefinitionInterface;
+use CoreShop\Component\Product\Model\ProductUnitDefinitionsInterface;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+
+final class ProductUnitDefinitionsType extends AbstractResourceType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->addEventListener(FormEvents::SUBMIT, [$this, 'onSubmit']);
+
+        $builder
+            ->add('product', ProductSelectionType::class)
+            ->add('defaultUnitDefinition', ProductUnitDefinitionType::class, [
+                'mapped' => false,
+            ])
+            ->add('additionalUnitDefinitions', ProductUnitDefinitionCollectionType::class, [
+                'mapped' => false,
+            ])
+        ;
+    }
+
+    public function onSubmit(FormEvent $event): void
+    {
+        /** @var ProductUnitDefinitionsInterface $unitDefinitions */
+        $unitDefinitions = $event->getData();
+        $form = $event->getForm();
+
+        $defaultDefinition = $form->get('defaultUnitDefinition')->getData();
+        if ($defaultDefinition) {
+            $unitDefinitions->setDefaultUnitDefinition($defaultDefinition);
+        }
+
+        /** @var ProductUnitDefinitionInterface[] $additionalUnitDefinitions */
+        $additionalUnitDefinitions = $form->get('additionalUnitDefinitions')->getData();
+        foreach ($additionalUnitDefinitions as $key => $unitDefinition) {
+            $existingDefinition = $unitDefinitions->getUnitDefinition($unitDefinition->getUnitName());
+            if ($existingDefinition) {
+                $unitDefinitions->addAdditionalUnitDefinition($unitDefinition);
+                $additionalUnitDefinitions[$key] = $existingDefinition;
+            }
+        }
+
+        // force collection to re-arrange unit definitions!
+        PropertyAccess::createPropertyAccessor()->setValue($unitDefinitions, 'additionalUnitDefinitions', $additionalUnitDefinitions);
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'coreshop_product_unit_definitions';
+    }
+}

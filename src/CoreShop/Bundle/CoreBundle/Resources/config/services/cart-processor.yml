@@ -1,0 +1,103 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Core\Order\Processor\CartItemProcessor:
+        arguments:
+            - '@CoreShop\Component\Core\Product\ProductTaxCalculatorFactoryInterface'
+            - '@CoreShop\Component\Core\Provider\AddressProviderInterface'
+            - '@coreshop.repository.tax_rate'
+            - '@coreshop.factory.tax_item'
+
+    CoreShop\Component\Core\Order\Processor\CartAdjustmentClearer:
+        tags:
+            - { name: coreshop.cart_processor, priority: 650 }
+
+    CoreShop\Component\Core\Order\Processor\CartItemsProcessor:
+        arguments:
+            - '@CoreShop\Component\Order\Calculator\PurchasableCalculatorInterface'
+            - '@CoreShop\Component\ProductQuantityPriceRules\Detector\QuantityReferenceDetector'
+            - '@CoreShop\Component\Core\Order\Processor\CartItemProcessor'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 600 }
+
+    CoreShop\Component\Core\Order\Processor\CartItemsImmutableProcessor:
+        arguments:
+            - '@CoreShop\Component\Core\Order\Processor\CartItemProcessor'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 605 }
+
+    CoreShop\Component\Core\Order\Processor\CartSubtotalProcessor:
+        tags:
+            - { name: coreshop.cart_processor, priority: 580 }
+
+    CoreShop\Component\Core\Order\Processor\CartItemsWholesaleProcessor:
+        arguments:
+            - '@CoreShop\Component\Order\Calculator\PurchasableWholesalePriceCalculatorInterface'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 575 }
+
+    CoreShop\Component\Core\Order\Processor\CartShippingProcessor:
+        arguments:
+            - '@CoreShop\Component\Shipping\Calculator\TaxedShippingCalculatorInterface'
+            - '@CoreShop\Component\Shipping\Validator\ShippableCarrierValidatorInterface'
+            - '@CoreShop\Component\Shipping\Resolver\DefaultCarrierResolverInterface'
+            - '@CoreShop\Component\Core\Provider\AddressProviderInterface'
+            - '@coreshop.factory.adjustment'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 550 }
+
+    CoreShop\Component\Core\Order\Processor\CartRuleAutoProcessor:
+        arguments:
+            - '@coreshop.repository.cart_price_rule'
+            - '@CoreShop\Component\Order\Cart\Rule\CartPriceRuleProcessorInterface'
+            - '@CoreShop\Component\Order\Cart\Rule\CartPriceRuleUnProcessorInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 450 }
+
+    CoreShop\Component\Core\Order\Processor\CartPriceRuleVoucherProcessor:
+        arguments:
+            - '@CoreShop\Component\Order\Cart\Rule\ProposalCartPriceRuleCalculatorInterface'
+            - '@coreshop.repository.cart_price_rule_voucher_code'
+            - '@CoreShop\Component\Order\Cart\Rule\CartPriceRuleValidationProcessorInterface'
+            - '@CoreShop\Component\Order\Cart\Rule\CartPriceRuleUnProcessorInterface'
+            - '@coreshop.factory.adjustment'
+        tags:
+            - { name: coreshop.cart_processor, priority: 400 }
+
+    CoreShop\Component\Core\Order\Processor\CartTextProcessor:
+        arguments:
+            - '@coreshop.translation_locale_provider'
+        tags:
+            - { name: coreshop.cart_processor, priority: 380 }
+
+    CoreShop\Component\Core\Order\Processor\CartTaxProcessor:
+        arguments:
+            - '@CoreShop\Component\Taxation\Collector\TaxCollectorInterface'
+            - '@CoreShop\Component\Core\Provider\AddressProviderInterface'
+            - '@coreshop.registry.shipping.tax_calculation_strategies'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 350 }
+
+    CoreShop\Component\Core\Order\Processor\CartPaymentProcessor:
+        arguments:
+            - '%coreshop.currency.decimal_factor%'
+            - '%coreshop.currency.decimal_precision%'
+            - '@CoreShop\Component\Payment\Calculator\PaymentProviderRulePriceCalculatorInterface'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+            - '@coreshop.factory.adjustment'
+            - '@CoreShop\Component\Payment\Checker\PaymentProviderRuleCheckerInterface'
+            - '@Pimcore\Translation\Translator'
+        tags:
+            - { name: coreshop.cart_processor, priority: 300 }
+
+    CoreShop\Component\Core\Order\Processor\CartCurrencyConversionProcessor:
+        arguments:
+            - '@CoreShop\Component\Currency\Converter\CurrencyConverterInterface'
+        tags:
+            - { name: coreshop.cart_processor, priority: 100 }

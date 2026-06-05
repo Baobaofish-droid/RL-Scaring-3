@@ -1,0 +1,10 @@
+core_shop_payment:
+    resources:
+        payment_provider:
+            classes:
+                model: CoreShop\Component\Core\Model\PaymentProvider
+                repository: CoreShop\Bundle\CoreBundle\Doctrine\ORM\PaymentProviderRepository
+
+        payment:
+            classes:
+                model: CoreShop\Component\Core\Model\Payment

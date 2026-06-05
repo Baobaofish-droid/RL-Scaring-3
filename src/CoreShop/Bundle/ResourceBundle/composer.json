@@ -1,0 +1,80 @@
+{
+    "name": "coreshop/resource-bundle",
+    "type": "pimcore-bundle",
+    "description": "CoreShop - Resource Bundle",
+    "keywords": [
+        "coreshop",
+        "pimcore",
+        "ecommerce"
+    ],
+    "homepage": "https://www.coreshop.com",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "CoreShop Team",
+            "email": "info@coreshop.com",
+            "homepage": "https://www.coreshop.com/",
+            "role": "Developer"
+        },
+        {
+            "name": "Dominik Pfaffenbauer",
+            "email": "dominik@pfaffenbauer.at",
+            "homepage": "https://www.pfaffenbauer.at/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "doctrine/orm": "^3.0",
+        "doctrine/doctrine-bundle": "^2.4",
+        "jms/serializer-bundle": "^5.0",
+        "stof/doctrine-extensions-bundle": "^1.6",
+        "coreshop/pimcore-bundle": "^2026.1",
+        "coreshop/locale-bundle": "^2026.1",
+        "coreshop/optimistic-entity-lock-bundle": "^2026.1",
+        "coreshop/registry": "^2026.1",
+        "coreshop/resource": "^2026.1",
+        "coreshop/studio-form-bundle": "^2026.1",
+        "symfony/config": "^6.4.14 || ^7.2",
+        "symfony/expression-language": "^6.4.14 || ^7.2",
+        "symfony/form": "^6.4.14 || ^7.2",
+        "symfony/framework-bundle": "^6.4.14 || ^7.2",
+        "symfony/security-csrf": "^6.4.14 || ^7.2",
+        "symfony/templating": "^6.4.14 || ^7.2",
+        "symfony/twig-bundle": "^6.4.14 || ^7.2",
+        "symfony/validator": "^6.4.14 || ^7.2",
+        "symfony/yaml": "^6.4.14 || ^7.2",
+        "gedmo/doctrine-extensions": "^3.11.0",
+        "pimcore/pimcore": "^2026.1"
+    },
+    "require-dev": {
+        "pimcore/studio-ui-bundle": "^2026.1",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-webmozart-assert": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CoreShop\\Bundle\\ResourceBundle\\": ""
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2026.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "suggest": {
+        "pimcore/elasticsearch-client": "Allows to use ElasticSearch as your index engine.",
+        "pimcore/opensearch-client": "Allows to use OpenSearch as your index engine."
+    }
+}

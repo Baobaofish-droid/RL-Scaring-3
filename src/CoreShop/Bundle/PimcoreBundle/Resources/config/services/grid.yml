@@ -1,0 +1,30 @@
+services:
+    _defaults:
+        public: true
+        autowire: true
+
+    CoreShop\Bundle\PimcoreBundle\Controller\GridController:
+        tags:
+            - { name: controller.service_arguments }
+            - { name: container.service_subscriber }
+        bind:
+            $gridActionServiceRegistry: '@coreshop.registry.grid.action'
+            $studioGridFilterServiceRegistry: '@coreshop.registry.studio.grid.filter'
+
+    coreshop.registry.grid.action:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        public: true
+        arguments:
+            - 'CoreShop\Component\Pimcore\DataObject\Grid\GridActionInterface'
+            - 'coreshop-grid-action'
+        tags:
+            - { name: coreshop.registry, type_hint: gridActions }
+
+    coreshop.registry.studio.grid.filter:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        public: true
+        arguments:
+            - 'CoreShop\Component\Pimcore\DataObject\Grid\StudioGridFilterInterface'
+            - 'coreshop-studio-grid-filter'
+        tags:
+            - { name: coreshop.registry, type_hint: studioGridFilters }

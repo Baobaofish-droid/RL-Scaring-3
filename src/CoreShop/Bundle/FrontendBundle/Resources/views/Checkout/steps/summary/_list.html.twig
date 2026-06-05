@@ -1,0 +1,16 @@
+<div class="shopping-cart-table">
+    <div class="row">
+
+        <div class="col-12 col-xl-8">
+            {{ form_errors(form) }}
+
+            {% for item in cart.items %}
+                {% include '@CoreShopFrontend/Common/Order/_item.html.twig' with {'item': item, 'btnremove': false} %}
+            {% endfor %}
+
+        </div>
+        <div class="col-12 col-xl-4">
+            {% include '@CoreShopFrontend/Checkout/steps/summary/_summary.html.twig' %}
+        </div>
+    </div>
+</div>

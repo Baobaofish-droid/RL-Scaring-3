@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\PaymentBundle\Form\Type\Rule\Condition;
+
+use CoreShop\Bundle\PaymentBundle\Form\Type\PaymentProviderRuleConditionCollectionType;
+use CoreShop\Bundle\RuleBundle\Form\Type\Rule\Condition\AbstractNestedConfigurationType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\Valid;
+
+final class NestedConfigurationType extends AbstractNestedConfigurationType
+{
+    /**
+     * @param string[] $validationGroups
+     */
+    public function __construct(
+        protected array $validationGroups,
+    ) {
+    }
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        parent::buildForm($builder, $options);
+
+        $builder
+            ->add('conditions', PaymentProviderRuleConditionCollectionType::class, [
+                'constraints' => [new Valid(groups: $this->validationGroups)],
+                'nested' => true,
+            ])
+        ;
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            $data = $event->getData();
+
+            if (is_array($data)) {
+                $data['conditions'] = [];
+
+                $event->setData($data);
+            }
+        });
+    }
+}

@@ -1,0 +1,33 @@
+{% extends '@CoreShopFrontend/layout.html.twig' %}
+{% form_theme form '@CoreShopFrontend/Form/theme.html.twig' %}
+
+{% block content %}
+
+    {% include '@CoreShopFrontend/Checkout/_order-steps.html.twig' %}
+
+    {% include '@CoreShopFrontend/Common/flash_messages.html.twig' %}
+
+    {% if cart.hasItems %}
+        <div class="cart-summary">
+            {% include '@CoreShopFrontend/Cart/Summary/_items.html.twig' %}
+        </div>
+    {% else %}
+        <p {{ coreshop_test_html_attribute('cart-empty') }}>{{ 'coreshop.ui.cart_empty'|trans }}</p>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12 col-sm-2 offset-sm-8">
+            <a href="{{ path('coreshop_index') }}" class="btn btn-secondary w-100">
+                {{ 'coreshop.ui.continue_shopping'|trans }}
+            </a>
+        </div>
+        {% if cart.hasItems %}
+            <div class="col-12 col-sm-2">
+                <a href="{{ path('coreshop_checkout', {'stepIdentifier': coreshop_checkout_steps_get_first()}) }}" class="btn btn-primary w-100">
+                    {{ 'coreshop.ui.checkout'|trans }}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

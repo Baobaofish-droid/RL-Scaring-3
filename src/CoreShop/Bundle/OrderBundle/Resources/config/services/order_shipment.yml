@@ -1,0 +1,49 @@
+services:
+    _defaults:
+        public: true
+
+    coreshop.order_shipment.number_generator.default:
+        class: CoreShop\Component\Order\NumberGenerator\SequenceNumberGenerator
+        arguments:
+            - '@CoreShop\Component\Sequence\Generator\SequenceGeneratorInterface'
+            - 'shipment'
+
+    CoreShop\Component\Order\Transformer\OrderItemToShipmentItemTransformer:
+        arguments:
+            - '@CoreShop\Component\Resource\Service\FolderCreationServiceInterface'
+            - '@CoreShop\Component\Order\Transformer\TransformerEventDispatcherInterface'
+
+    CoreShop\Component\Order\Transformer\OrderToShipmentTransformer:
+        arguments:
+            - '@CoreShop\Component\Order\Transformer\OrderItemToShipmentItemTransformer'
+            - '@coreshop.order_shipment.number_generator.default'
+            - '@CoreShop\Component\Resource\Service\FolderCreationServiceInterface'
+            - '@coreshop.repository.order_item'
+            - '@coreshop.factory.order_shipment_item'
+            - '@CoreShop\Component\Order\Transformer\TransformerEventDispatcherInterface'
+
+    coreshop.order.transformer.order_to_shipment.state_applier:
+        class: CoreShop\Component\Order\Transformer\OrderToOrderDocumentTransformerWorkflowApplier
+        decorates: CoreShop\Component\Order\Transformer\OrderToShipmentTransformer
+        arguments:
+             - '@coreshop.order.transformer.order_to_shipment.state_applier.inner'
+             - '@CoreShop\Bundle\WorkflowBundle\Manager\StateMachineManagerInterface'
+             - !php/const CoreShop\Component\Order\ShipmentStates::STATE_NEW
+             - !php/const CoreShop\Component\Order\ShipmentTransitions::IDENTIFIER
+             - !php/const CoreShop\Component\Order\ShipmentTransitions::TRANSITION_CREATE
+
+    CoreShop\Bundle\OrderBundle\Form\Type\OrderShipmentCreationItemsType:
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\OrderBundle\Form\Type\OrderShipmentCreationType:
+        tags:
+           - { name: form.type }
+
+    CoreShop\Bundle\OrderBundle\Form\Type\OrderInvoiceCreationItemsType:
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\OrderBundle\Form\Type\OrderInvoiceCreationType:
+        tags:
+            - { name: form.type }

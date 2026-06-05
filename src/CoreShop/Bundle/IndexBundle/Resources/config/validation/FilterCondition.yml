@@ -1,0 +1,6 @@
+CoreShop\Component\Index\Model\FilterCondition:
+    properties:
+        type:
+            - NotBlank: { groups: [coreshop] }
+        label:
+            - NotBlank: { groups: [coreshop] }

@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\TestBundle\Twig\Extension;
+
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
+
+final class TestHtmlAttributeExtension extends AbstractExtension
+{
+    public function __construct(
+        private string $env,
+    ) {
+    }
+
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction(
+                'coreshop_test_html_attribute',
+                function (string $name, ?string $value = null): string {
+                    if (str_starts_with($this->env, 'test')) {
+                        return sprintf('data-test-%s="%s"', $name, (string) $value);
+                    }
+
+                    return '';
+                },
+                ['is_safe' => ['html']],
+            ),
+        ];
+    }
+}

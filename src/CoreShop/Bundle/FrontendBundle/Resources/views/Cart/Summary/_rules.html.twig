@@ -1,0 +1,26 @@
+{% import "@CoreShopFrontend/Common/Macro/currency.html.twig" as currency %}
+
+{% if cart.hasPriceRules %}
+    <hr>
+
+    {% for priceRule in cart.priceRuleItems %}
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <span class="d-inline-block">
+                <strong>{{ priceRule.cartPriceRule.label ?: priceRule.cartPriceRule.name }}:</strong>
+                {% if priceRule.cartPriceRule.description %}
+                    <span>{{ priceRule.cartPriceRule.description }}</span>
+                {% endif %}
+            </span>
+            {% if priceRule.discount != 0 %}
+                <span>
+                    {{ currency.convertAndFormat(priceRule.discount(true)) }} <small>({{ currency.convertAndFormat(priceRule.discount(false)) }})</small>
+                </span>
+            {% endif %}
+            {% if priceRule.cartPriceRule.isVoucherRule and is_granted('CORESHOP_CART_REMOVE_PRICE_RULE') %}
+                <a title="{{ 'coreshop.ui.remove'|trans }}" class="btn btn-icon" href="{{ path('coreshop_cart_remove_price_rule', {'code' : priceRule.voucherCode }) }}">
+                    <i class="bi bi-trash"></i>
+                </a>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}

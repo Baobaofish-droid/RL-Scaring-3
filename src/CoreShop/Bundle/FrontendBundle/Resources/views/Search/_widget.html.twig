@@ -1,0 +1,13 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+<div>
+    {{ form_start(form, {'attr' : {'id': 'search'}}) }}
+    <div class="d-flex">
+        <div class="input-group">
+            {{ form_widget(form.text, {'label' : false,  'attr' : {'placeholder':'coreshop.ui.search'|trans,'class': 'form-control'}}) }}
+            <button type="submit" class="d-flex align-items-center justify-content-center with-icon  btn btn-primary input-group-text">Submit <i class="bi bi-search ms-2"></i></button>
+        </div>
+
+    </div>
+    {{ form_end(form,{'method': 'GET'}) }}
+</div>

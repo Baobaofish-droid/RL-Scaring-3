@@ -1,0 +1,5 @@
+{% extends '@CoreShopFrontend/layout-column.html.twig' %}
+
+{% block center %}
+    {{ render(controller('CoreShop\\Bundle\\FrontendBundle\\Controller\\ProductController::latestAction')) }}
+{% endblock %}

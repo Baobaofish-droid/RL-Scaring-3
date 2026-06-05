@@ -1,0 +1,11 @@
+services:
+    CoreShop\Bundle\OrderBundle\Controller\OrderDocumentPrintController:
+        public: true
+        autoconfigure: true
+        autowire: true
+
+    CoreShop\Bundle\OrderBundle\Controller\StudioOrderDocumentController:
+        public: true
+        autoconfigure: true
+        autowire: true
+

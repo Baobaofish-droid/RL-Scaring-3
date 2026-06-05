@@ -1,0 +1,154 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Core\Cart\Rule\Action;
+
+use CoreShop\Component\Core\Model\ProductInterface;
+use CoreShop\Component\Order\Cart\Rule\Action\CartPriceRuleActionProcessorInterface;
+use CoreShop\Component\Order\Factory\AdjustmentFactoryInterface;
+use CoreShop\Component\Order\Factory\OrderItemFactoryInterface;
+use CoreShop\Component\Order\Model\AdjustmentInterface;
+use CoreShop\Component\Order\Model\OrderInterface;
+use CoreShop\Component\Order\Model\OrderItemInterface;
+use CoreShop\Component\Order\Model\PriceRuleItemInterface;
+use CoreShop\Component\Order\Model\PurchasableInterface;
+use CoreShop\Component\Product\Model\ProductUnitDefinitionInterface;
+use CoreShop\Component\Resource\Repository\PimcoreRepositoryInterface;
+use CoreShop\Component\Rule\Model\ActionInterface;
+
+final class GiftProductActionProcessor implements CartPriceRuleActionProcessorInterface
+{
+    public function __construct(
+        private PimcoreRepositoryInterface $productRepository,
+        private OrderItemFactoryInterface $cartItemFactory,
+        private AdjustmentFactoryInterface $adjustmentFactory,
+    ) {
+    }
+
+    public function applyRule(OrderInterface $cart, array $configuration, PriceRuleItemInterface $cartPriceRuleItem): bool
+    {
+        $product = $this->productRepository->find($configuration['product']);
+
+        if (!$product instanceof PurchasableInterface) {
+            return false;
+        }
+
+        $action = $configuration['action'];
+        $key = $this->getKey($action);
+        $cartItems = [];
+
+        foreach ($cart->getItems() as $item) {
+            if (!$item->getIsGiftItem()) {
+                continue;
+            }
+
+            foreach ($item->getAdjustments() as $adjustment) {
+                if ($adjustment->getTypeIdentifier() === $key) {
+                    $cartItems[] = $item;
+                }
+            }
+        }
+
+        foreach ($cartItems as $cartItem) {
+            $this->removeCartItem($cart, $cartItem);
+        }
+
+        /**
+         * @var \CoreShop\Component\Core\Model\OrderItemInterface $item
+         */
+        $item = $this->cartItemFactory->createWithCart($cart, $product);
+        $item->setQuantity(1);
+        $item->setIsGiftItem(true);
+
+        if ($product instanceof ProductInterface) {
+            $item->setDigitalProduct($product->getDigitalProduct());
+        }
+
+        if (
+            $product instanceof ProductInterface &&
+            $product->hasUnitDefinitions() &&
+            $product->getUnitDefinitions()?->getDefaultUnitDefinition() instanceof ProductUnitDefinitionInterface
+        ) {
+            $item->setUnitDefinition($product->getUnitDefinitions()?->getDefaultUnitDefinition());
+        }
+
+        $item->setDefaultUnitQuantity(1);
+
+        $adjustment = $this->adjustmentFactory->createWithData(
+            $key,
+            $cartPriceRuleItem->getCartPriceRule()->getName(),
+            0,
+            0,
+            true,
+        );
+
+        $item->addAdjustment($adjustment);
+
+        return true;
+    }
+
+    public function unApplyRule(OrderInterface $cart, array $configuration, PriceRuleItemInterface $cartPriceRuleItem): bool
+    {
+        $product = $this->productRepository->find($configuration['product']);
+
+        if (!$product instanceof PurchasableInterface) {
+            return false;
+        }
+
+        $action = $configuration['action'];
+        $key = $this->getKey($action);
+        $cartItems = [];
+
+        foreach ($cart->getItems() as $item) {
+            if (!$item->getIsGiftItem()) {
+                continue;
+            }
+
+            foreach ($item->getAdjustments() as $adjustment) {
+                if ($adjustment->getTypeIdentifier() === $key) {
+                    $cartItems[] = $item;
+                }
+            }
+        }
+
+        foreach ($cartItems as $cartItem) {
+            $this->removeCartItem($cart, $cartItem);
+        }
+
+        return true;
+    }
+
+    private function removeCartItem(OrderInterface $cart, OrderItemInterface $cartItem): void
+    {
+        $cart->removeItem($cartItem);
+
+        if ($cartItem->getId() === null) {
+            return;
+        }
+
+        if ($cartItem->getId() === 0) {
+            return;
+        }
+
+        $cartItem->delete();
+    }
+
+    private function getKey(ActionInterface $action): string
+    {
+        return sprintf('%s_%s', AdjustmentInterface::CART_PRICE_RULE, $action->getId());
+    }
+}

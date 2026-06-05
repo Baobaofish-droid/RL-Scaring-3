@@ -1,0 +1,19 @@
+coreshop:
+    product:
+        allowed_attribute_groups: "Allowed attribute groups"
+        attributes: "Attributes"
+
+    attribute_group:
+        name: "Name"
+        show_in_list: "Show in list view"
+
+    attribute:
+        name: "Name"
+        value_text: "Value"
+        value_color: "Color"
+        attribute_group: "Attribute Groupe"
+
+    variant_generator:
+        generate: "Generate variants"
+        generate_in_background: "Variants will be generated in background"
+

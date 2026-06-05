@@ -1,0 +1,37 @@
+imports:
+    - { resource: ../../config.yaml }
+    - { resource: ../../../src/CoreShop/Behat/Resources/config/services.yml }
+
+doctrine:
+    dbal:
+        connections:
+            default:
+                url: '%pimcore_test.db.dsn%'
+                host: ''
+                port: ''
+                dbname: ''
+                user: ''
+                password: ''
+
+parameters:
+    pimcore_test.db.dsn: '%env(PIMCORE_TEST_DB_DSN)%'
+    env(PIMCORE_TEST_DB_DSN): ~
+
+framework:
+    session:
+        handler_id:  ~
+        storage_factory_id: session.storage.factory.mock_file
+        name: MOCKSESSID
+        gc_probability: null
+    messenger:
+        transports:
+            coreshop_index: 'sync://'
+        routing:
+            'CoreShop\Bundle\IndexBundle\Messenger\IndexMessage': coreshop_index
+
+monolog:
+    handlers:
+        main:
+            level: error
+        console:
+            channels: ['!event', '!doctrine', '!console', '!cache']

@@ -1,0 +1,25 @@
+parameters:
+    coreshop.installer.resources: '@@CoreShopCoreBundle/Resources/install'
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\CoreBundle\Installer\Checker\CommandDirectoryChecker:
+        arguments:
+            - '@filesystem'
+
+    CoreShop\Bundle\CoreBundle\Installer\Provider\DatabaseSetupCommandsProvider:
+        arguments:
+            - '@doctrine'
+
+    CoreShop\Bundle\CoreBundle\Installer\Executor\FolderInstallerProvider:
+        arguments:
+            - [
+                '%coreshop.folder.cart%',
+                '%coreshop.folder.product%',
+                '%coreshop.folder.customer%',
+                '%coreshop.folder.customer_group%',
+                '%coreshop.folder.order%',
+                '%coreshop.folder.quote%'
+              ]

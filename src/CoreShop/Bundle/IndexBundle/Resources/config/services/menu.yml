@@ -1,0 +1,7 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\IndexBundle\Menu\IndexMenuBuilder:
+        tags:
+            - { name: coreshop.menu, type: index, menu: coreshop }

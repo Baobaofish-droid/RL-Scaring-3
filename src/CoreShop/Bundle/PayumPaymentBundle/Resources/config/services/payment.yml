@@ -1,0 +1,20 @@
+services:
+    _defaults:
+        public: true
+
+    coreshop.form_registry.payment.settings:
+        class: CoreShop\Bundle\ResourceBundle\Form\Registry\FormTypeRegistry
+
+    CoreShop\Bundle\PayumPaymentBundle\Resolver\EventBasedPaymentProviderResolver:
+        decoration_priority: 5
+        decorates: CoreShop\Component\Payment\Resolver\PaymentProviderResolverInterface
+        arguments:
+            - '@CoreShop\Bundle\PayumPaymentBundle\Resolver\EventBasedPaymentProviderResolver.inner'
+            - '@event_dispatcher'
+
+    coreshop.form_registry.payum_gateway_config:
+        class: CoreShop\Bundle\ResourceBundle\Form\Registry\FormTypeRegistry
+
+    coreshop.payum.http_client:
+        class: Payum\Core\HttpClientInterface
+        factory: [Payum\Core\Bridge\Guzzle\HttpClientFactory, create]

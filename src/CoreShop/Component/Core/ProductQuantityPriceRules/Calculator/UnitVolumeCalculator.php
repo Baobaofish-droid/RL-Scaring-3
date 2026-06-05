@@ -1,0 +1,123 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Core\ProductQuantityPriceRules\Calculator;
+
+use CoreShop\Component\Core\Model\QuantityRangeInterface as CoreQuantityRangeInterface;
+use CoreShop\Component\Product\Model\ProductInterface;
+use CoreShop\Component\Product\Model\ProductUnitDefinitionInterface;
+use CoreShop\Component\ProductQuantityPriceRules\Calculator\CalculatorInterface;
+use CoreShop\Component\ProductQuantityPriceRules\Calculator\VolumeCalculator;
+use CoreShop\Component\ProductQuantityPriceRules\Exception\NoPriceFoundException;
+use CoreShop\Component\ProductQuantityPriceRules\Model\ProductQuantityPriceRuleInterface;
+use CoreShop\Component\ProductQuantityPriceRules\Model\QuantityRangeInterface;
+use CoreShop\Component\ProductQuantityPriceRules\Model\QuantityRangePriceAwareInterface;
+use CoreShop\Component\Registry\ServiceRegistryInterface;
+use Doctrine\Common\Collections\Collection;
+
+class UnitVolumeCalculator implements CalculatorInterface
+{
+    public function __construct(
+        protected VolumeCalculator $inner,
+        protected ServiceRegistryInterface $actionRegistry,
+    ) {
+    }
+
+    public function calculateForQuantity(
+        ProductQuantityPriceRuleInterface $quantityPriceRule,
+        QuantityRangePriceAwareInterface $subject,
+        float $quantity,
+        int $originalPrice,
+        array $context,
+    ): int {
+        if (!isset($context['unitDefinition']) || !$context['unitDefinition'] instanceof ProductUnitDefinitionInterface) {
+            return $this->inner->calculateForQuantity(
+                $quantityPriceRule,
+                $subject,
+                $quantity,
+                $originalPrice,
+                $context,
+            );
+        }
+
+        $locatedRange = $this->locate($quantityPriceRule->getRanges(), $quantity, $context['unitDefinition']);
+
+        if (null === $locatedRange) {
+            throw new NoPriceFoundException(__CLASS__);
+        }
+
+        $price = $this->inner->calculateRangePrice($locatedRange, $subject, $originalPrice, $context);
+
+        if ($price === 0) {
+            throw new NoPriceFoundException(__CLASS__);
+        }
+
+        if ($subject instanceof ProductInterface && is_numeric($subject->getItemQuantityFactor()) && $subject->getItemQuantityFactor() > 1) {
+            $price = (int) ($price / $subject->getItemQuantityFactor());
+        }
+
+        return $price;
+    }
+
+    public function calculateForRange(
+        QuantityRangeInterface $range,
+        QuantityRangePriceAwareInterface $subject,
+        int $originalPrice,
+        array $context,
+    ): int {
+        return $this->inner->calculateForRange($range, $subject, $originalPrice, $context);
+    }
+
+    protected function locate(
+        Collection $ranges,
+        float $quantity,
+        ProductUnitDefinitionInterface $unitDefinition,
+    ): ?QuantityRangeInterface {
+        if ($ranges->isEmpty()) {
+            return null;
+        }
+
+        $cheapestRangePrice = null;
+        $unitFilteredRanges = array_filter(
+            $ranges->toArray(),
+            static function (CoreQuantityRangeInterface $range) use ($unitDefinition) {
+                if (!$range->getUnitDefinition() instanceof ProductUnitDefinitionInterface) {
+                    return false;
+                }
+                if ($range->getUnitDefinition()->getId() !== $unitDefinition->getId()) {
+                    return false;
+                }
+
+                return true;
+            },
+        );
+
+        // reset array index
+        $unitFilteredRanges = array_values($unitFilteredRanges);
+
+        /** @var CoreQuantityRangeInterface $range */
+        foreach ($unitFilteredRanges as $range) {
+            if ($range->getRangeStartingFrom() > $quantity) {
+                break;
+            }
+
+            $cheapestRangePrice = $range;
+        }
+
+        return $cheapestRangePrice;
+    }
+}

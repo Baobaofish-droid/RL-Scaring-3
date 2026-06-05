@@ -1,0 +1,20 @@
+services:
+    CoreShop\Component\SEO\Extractor\DescriptionExtractor:
+        tags:
+            - { name: coreshop.seo.extractor, type: description }
+
+    CoreShop\Component\SEO\Extractor\TitleExtractor:
+        tags:
+            - { name: coreshop.seo.extractor, type: title }
+
+    CoreShop\Component\SEO\Extractor\OGExtractor:
+        tags:
+            - { name: coreshop.seo.extractor, type: opengraph }
+
+    CoreShop\Component\SEO\Extractor\ImageExtractor:
+        tags:
+            - { name: coreshop.seo.extractor, type: image }
+
+    CoreShop\Component\SEO\Extractor\DocumentExtractor:
+        tags:
+            - { name: coreshop.seo.extractor, type: document }

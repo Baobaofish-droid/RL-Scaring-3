@@ -1,0 +1,83 @@
+{% extends '@CoreShopFrontend/layout-column.html.twig' %}
+
+{% block center %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('coreshop_index') }}">{{ 'coreshop.ui.home'|trans }}</a></li>
+            {% for cat in category.hierarchy %}
+                <li class="breadcrumb-item active"><a href="{{ pimcore_object_path(cat) }}">{{ cat.name }}</a></li>
+            {% endfor %}
+        </ol>
+    </nav>
+
+    <h2 class="main-heading2">
+        {{ category.name }}
+    </h2>
+
+    <div class="product-filter pb-4 pt-2">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex gap-2">
+                    <a href="{{ pimcore_url({'type': 'list'})  }}" class="text-decoration-none {% if type == 'list' %} active {% endif %}" {{ coreshop_test_html_attribute('view-list') }}>
+                        <i class="bi bi-view-list " title="" data-original-title="{{ 'coreshop.ui.list_view'|trans }}"></i>
+                    </a>
+                    <a href="{{ pimcore_url({'type': 'grid'})  }}" class="text-decoration-none {% if type == 'grid' %} active {% endif %}" {{ coreshop_test_html_attribute('view-grid') }}>
+                        <i class="bi bi-grid" title="" data-original-title="{{ 'coreshop.ui.grid_view'|trans }}"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex col-md-8 gap-3 justify-content-end">
+                <div class="d-sm-flex align-items-center gap-sm-2">
+                    <label for="sorting" >{{ 'coreshop.ui.sort'|trans }}</label>
+                    <select id="sorting" class="form-control-sm site-reload" name="sort" {{ coreshop_test_html_attribute('order-selection') }}>
+                        {% for value in validSortElements %}
+                            {% set asc = value ~ '_asc' %}
+                            {% set desc = value ~ '_desc' %}
+                            <option value="{{ asc }}" {% if sort == asc %} selected="selected" {% endif %}>{{ value|capitalize ~ ' ' ~ ('coreshop.ui.ascending'|trans) }}</option>
+                            <option value="{{ desc }}" {% if sort == desc %} selected="selected" {% endif %}>{{ value|capitalize ~ ' ' ~ ('coreshop.ui.descending'|trans) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-sm-flex align-items-center gap-sm-2">
+                    <label for="show-per-page">{{ 'coreshop.ui.show'|trans }}</label>
+                    <select id="show-per-page" class="form-control-sm site-reload" name="perPage">
+                        {% for perPageList in perPageAllowed %}
+                            <option value="{{ perPageList }}" {% if perPageList == perPage %} selected="selected" {% endif %}>{{ perPageList }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% set type = type == 'grid' or type == 'list' ? type : 'list' %}
+
+        {% for product in paginator.items %}
+            {% include '@CoreShopFrontend/Category/_'~type~'.html.twig' with {
+                product: product,
+            } only %}
+        {% endfor %}
+    </div>
+
+    {% include '@CoreShopFrontend/Common/paginator.html.twig' with {
+        paginator: paginator,
+    } only %}
+{% endblock %}
+
+{% block left %}
+    {% if conditions is defined %}
+        {% if conditions|length > 0 %}
+            <form class="form" method="get">
+                <br/><br/>
+            {%  for condition in conditions %}
+                {% include '@CoreShopFrontend/Category/filter/_'~condition['type']~'.html.twig' with condition only %}
+            {% endfor %}
+
+                <div class="list-group-item">
+                    <button type="submit" class="btn btn-success" {{ coreshop_test_html_attribute('category-filter-submit') }} >{{ 'coreshop.ui.filter'|trans }}</button>
+                </div>
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}

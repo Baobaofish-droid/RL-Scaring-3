@@ -1,0 +1,66 @@
+imports:
+    - { resource: services/form.yml }
+    - { resource: services/profiler.yml }
+    - { resource: services/theme.yml }
+    - { resource: services/pimcore.yml }
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Store\Context\StoreContextInterface: '@CoreShop\Component\Store\Context\CompositeStoreContext'
+    CoreShop\Component\Store\Context\CompositeStoreContext:
+        public: false
+
+    CoreShop\Component\Store\Context\RequestBased\StoreContext:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Store\Context\RequestBased\RequestResolverInterface'
+            - '@request_stack'
+        tags:
+            - { name: coreshop.context.store, priority: 1 }
+
+    CoreShop\Component\Store\Context\RequestBased\CachedStoreContext:
+        decorates: CoreShop\Component\Store\Context\RequestBased\StoreContext
+        arguments:
+            - '@CoreShop\Component\Store\Context\RequestBased\CachedStoreContext.inner'
+
+    CoreShop\Component\Store\Context\FixedStoreContext:
+        tags:
+            - { name: coreshop.context.store, priority: 2 }
+
+    CoreShop\Component\Store\Context\SiteBasedResolverInterface: '@CoreShop\Component\Store\Context\SiteBasedResolver'
+    CoreShop\Component\Store\Context\SiteBasedResolver:
+        arguments:
+            - '@coreshop.repository.store'
+
+    CoreShop\Component\Store\Context\RequestBased\RequestResolverInterface: '@CoreShop\Component\Store\Context\RequestBased\CompositeRequestResolver'
+    CoreShop\Component\Store\Context\RequestBased\CompositeRequestResolver:
+        public: false
+
+    CoreShop\Component\Store\Context\RequestBased\PimcoreAdminSiteBasedRequestResolver:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Store\Context\SiteBasedResolverInterface'
+            - '@Pimcore\Http\RequestHelper'
+            - '@Pimcore\Model\Document\Service'
+        tags:
+            - { name: coreshop.context.store.request_based.resolver, priority: 200 }
+
+    CoreShop\Component\Store\Context\RequestBased\PimcoreAreaBrickRenderResolver:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Store\Context\SiteBasedResolverInterface'
+        tags:
+            - { name: coreshop.context.store.request_based.resolver, priority: 220 }
+
+    CoreShop\Component\Store\Context\RequestBased\SiteBasedRequestResolver:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Store\Context\SiteBasedResolverInterface'
+        tags:
+            - { name: coreshop.context.store.request_based.resolver, priority: 100 }
+
+    CoreShop\Bundle\StoreBundle\CoreExtension\StoreOptionProvider:
+        arguments:
+            - '@coreshop.repository.store'

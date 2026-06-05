@@ -1,0 +1,65 @@
+{
+    "name": "coreshop/payment-bundle",
+    "type": "pimcore-bundle",
+    "description": "CoreShop - Payment Bundle",
+    "keywords": [
+        "coreshop",
+        "pimcore",
+        "ecommerce"
+    ],
+    "homepage": "https://www.coreshop.com",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "CoreShop Team",
+            "email": "info@coreshop.com",
+            "homepage": "https://www.coreshop.com/",
+            "role": "Developer"
+        },
+        {
+            "name": "Dominik Pfaffenbauer",
+            "email": "dominik@pfaffenbauer.at",
+            "homepage": "https://www.pfaffenbauer.at/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "coreshop/payment": "^2026.1",
+        "coreshop/money-bundle": "^2026.1",
+        "coreshop/resource-bundle": "^2026.1",
+        "coreshop/rule-bundle": "^2026.1",
+        "coreshop/workflow-bundle": "^2026.1",
+        "pimcore/pimcore": "^2026.1"
+    },
+    "require-dev": {
+        "pimcore/studio-ui-bundle": "^2026.1",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-webmozart-assert": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CoreShop\\Bundle\\PaymentBundle\\": ""
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2026.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "suggest": {
+        "pimcore/elasticsearch-client": "Allows to use ElasticSearch as your index engine.",
+        "pimcore/opensearch-client": "Allows to use OpenSearch as your index engine."
+    }
+}

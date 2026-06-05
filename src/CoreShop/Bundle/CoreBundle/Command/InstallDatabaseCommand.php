@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\CoreBundle\Command;
+
+use CoreShop\Bundle\CoreBundle\Installer\Checker\CommandDirectoryChecker;
+use CoreShop\Bundle\CoreBundle\Installer\Provider\DatabaseSetupCommandsProviderInterface;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\HttpKernel\KernelInterface;
+
+final class InstallDatabaseCommand extends AbstractInstallCommand
+{
+    public function __construct(
+        KernelInterface $kernel,
+        CommandDirectoryChecker $directoryChecker,
+        protected DatabaseSetupCommandsProviderInterface $databaseSetupCommand,
+    ) {
+        parent::__construct($kernel, $directoryChecker);
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->setName('coreshop:install:database')
+            ->setDescription('Install CoreShop database.')
+            ->setHelp(
+                <<<EOT
+The <info>%command.name%</info> command creates CoreShop database.
+EOT
+            )
+        ;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $outputStyle = new SymfonyStyle($input, $output);
+        $outputStyle->writeln(sprintf(
+            'Creating CoreShop database for environment <info>%s</info>.',
+            $this->getEnvironment(),
+        ));
+
+        /**
+         * @var QuestionHelper $questionHelper
+         */
+        $questionHelper = $this->getHelper('question');
+        $commands = $this->databaseSetupCommand->getCommands($input, $output, $questionHelper);
+
+        $this->runCommands($commands, $output);
+        $outputStyle->newLine();
+
+        return 0;
+    }
+}

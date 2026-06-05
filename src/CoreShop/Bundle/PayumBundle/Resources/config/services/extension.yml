@@ -1,0 +1,10 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\PayumBundle\Extension\UpdatePaymentStateExtension:
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\Manager\StateMachineManagerInterface'
+        tags:
+            - { name: payum.extension, all: true, prepend: true }
+

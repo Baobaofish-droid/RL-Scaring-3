@@ -1,0 +1,131 @@
+parameters:
+    coreshop.form.type.product_specific_price_rule.validation_groups: [coreshop]
+    coreshop.form.type.product_specific_price_rule_translation.validation_groups: [coreshop]
+    coreshop.form.type.product_specific_price_rule.rule.validation_groups: [coreshop]
+    coreshop.form.type.product_specific_price_rule.rule_action.validation_groups: [coreshop]
+    coreshop.form.type.product_specific_price_rule.rule_condition.validation_groups: [coreshop]
+    coreshop.form.type.product_specific_price_rule.promotion_coupon.validation_groups: [coreshop]
+
+services:
+    _defaults:
+        public: true
+
+    # Forms
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleType:
+        arguments:
+            - '%coreshop.model.product_specific_price_rule.class%'
+            - '%coreshop.form.type.product_specific_price_rule.validation_groups%'
+        tags:
+            - { name: form.type }
+            - { name: coreshop.studio_form }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleTranslationType:
+        arguments:
+            - '%coreshop.model.product_specific_price_rule_translation.class%'
+            - '%coreshop.form.type.product_specific_price_rule_translation.validation_groups%'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleActionType:
+        arguments:
+            - '%coreshop.model.rule_action.class%'
+            - '%coreshop.form.type.product_specific_price_rule.rule_action.validation_groups%'
+            - '@coreshop.form_registry.product_specific_price_rule.actions'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleActionCollectionType:
+        arguments:
+            - '@coreshop.registry.product_specific_price_rule.actions'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleConditionCollectionType:
+        arguments:
+            - '@coreshop.registry.product_specific_price_rule.conditions'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleActionChoiceType:
+        arguments:
+            - '%coreshop.product_specific_price_rule.actions%'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleConditionType:
+        arguments:
+            - '%coreshop.model.rule_condition.class%'
+            - '%coreshop.form.type.product_specific_price_rule.rule_condition.validation_groups%'
+            - '@coreshop.form_registry.product_specific_price_rule.conditions'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ProductBundle\Form\Type\ProductSpecificPriceRuleConditionChoiceType:
+        arguments:
+            - '%coreshop.product_specific_price_rule.conditions%'
+        tags:
+            - { name: form.type }
+
+    # Services
+    coreshop.registry.product_specific_price_rule.conditions:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        arguments:
+            - CoreShop\Component\Rule\Condition\ConditionCheckerInterface
+            - specific-product-price-rule-conditions
+        tags:
+            - { name: coreshop.registry, type_hint: productSpecificPriceRuleConditions }
+
+    coreshop.form_registry.product_specific_price_rule.conditions:
+        class: CoreShop\Bundle\ResourceBundle\Form\Registry\FormTypeRegistry
+
+    coreshop.registry.product_specific_price_rule.actions:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        arguments:
+            - CoreShop\Component\Product\Rule\Action\ActionProcessorInterface
+            - product-price-rule-actions
+        tags:
+            - { name: coreshop.registry, type_hint: productSpecificPriceRuleActions }
+
+    coreshop.form_registry.product_specific_price_rule.actions:
+        class: CoreShop\Bundle\ResourceBundle\Form\Registry\FormTypeRegistry
+
+    # Price Rule Processor
+    coreshop.product_specific_price_rule.conditions.processor:
+        class: CoreShop\Component\Rule\Condition\RuleConditionsValidationProcessor
+        shared: false
+        arguments:
+            - '@coreshop.registry.product_specific_price_rule.conditions'
+            - 'Product Specific Price Rules'
+        tags:
+            - { name: coreshop.rule.conditions.validation_processor }
+
+    coreshop.product_specific_price_rule.processor:
+        class: CoreShop\Component\Rule\Condition\RuleValidationProcessor
+        arguments:
+            - '@coreshop.product_specific_price_rule.conditions.processor'
+
+    # Price Calculators
+    coreshop.product.price_calculator.product_specific_price_valid_rules_fetcher: '@CoreShop\Component\Product\Rule\Fetcher\ValidProductSpecificPriceRuleFetcher'
+    CoreShop\Component\Product\Rule\Fetcher\ValidProductSpecificPriceRuleFetcher:
+        arguments:
+            - '@coreshop.product_specific_price_rule.processor'
+        tags:
+            - { name: coreshop.product.rules.fetcher, type: product-specific-rules }
+
+    coreshop.product.price_calculator.product_specific_price_valid_rules_fetcher.memory_cached:
+        class: CoreShop\Component\Product\Rule\Fetcher\MemoryCachedValidRuleFetcher
+        decorates: 'coreshop.product.price_calculator.product_specific_price_valid_rules_fetcher'
+        arguments:
+            - '@coreshop.product.price_calculator.product_specific_price_valid_rules_fetcher.memory_cached.inner'
+            - '@request_stack'
+
+    coreshop.product.price_calculator.product_specific_price_rules:
+      class: CoreShop\Component\Product\Rule\Calculator\ProductPriceRuleCalculator
+      arguments:
+          - '@coreshop.product.price_calculator.product_specific_price_valid_rules_fetcher'
+          - '@coreshop.registry.product_specific_price_rule.actions'
+      tags:
+          - { name: coreshop.product.retail_price_calculator, type: product_specific_price_rules, priority: 30 }
+          - { name: coreshop.product.discount_price_calculator, type: product_specific_price_rules, priority: 30 }
+          - { name: coreshop.product.discount_calculator, type: product_specific_price_rules, priority: 30 }
+          - { name: coreshop.product.custom_attributes_calculator, type: product_specific_price_rules, priority: 30 }

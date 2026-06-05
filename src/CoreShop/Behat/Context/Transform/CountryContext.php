@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Behat\Context\Transform;
+
+use Behat\Behat\Context\Context;
+use CoreShop\Bundle\TestBundle\Service\SharedStorageInterface;
+use CoreShop\Component\Core\Model\CountryInterface;
+use CoreShop\Component\Core\Repository\CountryRepositoryInterface;
+use Webmozart\Assert\Assert;
+
+final class CountryContext implements Context
+{
+    public function __construct(
+        private SharedStorageInterface $sharedStorage,
+        private CountryRepositoryInterface $countryRepository,
+    ) {
+    }
+
+    /**
+     * @Transform /^country "([^"]+)"$/
+     * @Transform /^countries "([^"]+)"$/
+     */
+    public function getCountryByName($name): CountryInterface
+    {
+        /**
+         * @var CountryInterface[] $countries
+         */
+        $countries = $this->countryRepository->findByName($name, 'en');
+
+        Assert::eq(
+            count($countries),
+            1,
+            sprintf('%d country has been found with name "%s".', count($countries), $name),
+        );
+
+        return reset($countries);
+    }
+
+    /**
+     * @Transform /^country$/
+     * @Transform /^countries$/
+     */
+    public function country(): CountryInterface
+    {
+        return $this->sharedStorage->get('country');
+    }
+}

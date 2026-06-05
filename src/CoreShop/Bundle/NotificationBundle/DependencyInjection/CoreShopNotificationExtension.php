@@ -1,0 +1,66 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\NotificationBundle\DependencyInjection;
+
+use CoreShop\Bundle\NotificationBundle\Attribute\AsNotificationRuleActionProcessor;
+use CoreShop\Bundle\NotificationBundle\Attribute\AsNotificationRuleConditionChecker;
+use CoreShop\Bundle\NotificationBundle\DependencyInjection\Compiler\NotificationRuleActionPass;
+use CoreShop\Bundle\NotificationBundle\DependencyInjection\Compiler\NotificationRuleConditionPass;
+use CoreShop\Bundle\ResourceBundle\CoreShopResourceBundle;
+use CoreShop\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractModelExtension;
+use CoreShop\Component\Notification\Rule\Action\NotificationRuleProcessorInterface;
+use CoreShop\Component\Notification\Rule\Condition\NotificationConditionCheckerInterface;
+use CoreShop\Component\Registry\Autoconfiguration;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
+final class CoreShopNotificationExtension extends AbstractModelExtension
+{
+    public function load(array $configs, ContainerBuilder $container): void
+    {
+        $configs = $this->processConfiguration($this->getConfiguration([], $container), $configs);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+
+        $this->registerResources('coreshop', CoreShopResourceBundle::DRIVER_DOCTRINE_ORM, $configs['resources'], $container);
+
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (array_key_exists('PimcoreStudioUiBundle', $bundles)) {
+            $loader->load('services/studio.yml');
+        }
+
+        $loader->load('services.yml');
+
+        Autoconfiguration::registerForAutoConfiguration(
+            $container,
+            NotificationRuleProcessorInterface::class,
+            NotificationRuleActionPass::NOTIFICATION_ACTION_TAG,
+            AsNotificationRuleActionProcessor::class,
+            true,
+        );
+
+        Autoconfiguration::registerForAutoConfiguration(
+            $container,
+            NotificationConditionCheckerInterface::class,
+            NotificationRuleConditionPass::NOTIFICATION_CONDITION_TAG,
+            AsNotificationRuleConditionChecker::class,
+            true,
+        );
+    }
+}

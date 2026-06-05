@@ -1,0 +1,68 @@
+parameters:
+    coreshop.session.cart: 'coreshop.cart'
+    coreshop.form.type.cart.validation_groups: [coreshop]
+    coreshop.form.type.cart_item.validation_groups: [coreshop]
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\OrderBundle\Form\Type\CartType:
+        arguments:
+            - '%coreshop.model.order.class%'
+            - '%coreshop.form.type.cart.validation_groups%'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\OrderBundle\Form\Type\CartCreationType:
+        arguments:
+            - '%coreshop.model.order.class%'
+            - '%coreshop.form.type.cart.validation_groups%'
+        tags:
+            - { name: form.type }
+            - { name: coreshop.studio_form }
+
+    coreshop.form.data_mapper.cart_item_quantity.property_mapper:
+        class: Symfony\Component\Form\Extension\Core\DataMapper\DataMapper
+
+    CoreShop\Bundle\OrderBundle\Form\DataMapper\CartItemQuantityDataMapper:
+        arguments:
+            - '@coreshop.cart_item.quantity_modifier'
+            - '@coreshop.form.data_mapper.cart_item_quantity.property_mapper'
+
+    CoreShop\Bundle\OrderBundle\Form\DataMapper\BackendCartItemQuantityDataMapper:
+        arguments:
+            - '@coreshop.cart_item.quantity_modifier.backend'
+            - '@coreshop.form.data_mapper.cart_item_quantity.property_mapper'
+
+    CoreShop\Bundle\OrderBundle\Form\Type\CartItemType:
+        arguments:
+            - '%coreshop.model.order_item.class%'
+            - '%coreshop.form.type.cart_item.validation_groups%'
+            - '@CoreShop\Bundle\OrderBundle\Form\DataMapper\CartItemQuantityDataMapper'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\OrderBundle\Form\Type\CartCreationCartItemType:
+        arguments:
+            - '%coreshop.model.order_item.class%'
+            - '%coreshop.form.type.cart_item.validation_groups%'
+            - '@CoreShop\Bundle\OrderBundle\Form\DataMapper\CartItemQuantityDataMapper'
+        tags:
+            - { name: form.type }
+
+
+    CoreShop\Bundle\OrderBundle\Form\Type\QuantityType:
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\OrderBundle\Form\Type\CartListChoiceType:
+        arguments:
+            - '@CoreShop\Component\Order\Cart\CartResolver'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Component\Order\Cart\CartResolver:
+        arguments:
+            - '@coreshop.repository.order'
+            - '@CoreShop\Component\Order\Context\CartContext'

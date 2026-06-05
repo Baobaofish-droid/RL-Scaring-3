@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Order\Factory;
+
+use CoreShop\Component\Order\Model\OrderInterface;
+use CoreShop\Component\Order\Model\OrderItemInterface;
+use CoreShop\Component\Order\Model\PurchasableInterface;
+use CoreShop\Component\Resource\Factory\FactoryInterface;
+
+class OrderItemFactory implements OrderItemFactoryInterface
+{
+    public function __construct(
+        private FactoryInterface $cartItemFactory,
+    ) {
+    }
+
+    /**
+     * @return OrderItemInterface
+     */
+    public function createNew()
+    {
+        return $this->cartItemFactory->createNew();
+    }
+
+    public function createWithCart(OrderInterface $cart, PurchasableInterface $purchasable): OrderItemInterface
+    {
+        $item = $this->createNew();
+        $item->setKey(uniqid());
+        $item->setParent($cart);
+        $item->setQuantity(0);
+        $item->setProduct($purchasable);
+        $item->setPublished(true);
+        $item->setOrder($cart);
+        $item->setImmutable(false);
+
+        $cart->addItem($item);
+
+        return $item;
+    }
+
+    public function createWithPurchasable(PurchasableInterface $purchasable): OrderItemInterface
+    {
+        $item = $this->createNew();
+        $item->setKey(uniqid());
+        $item->setQuantity(0);
+        $item->setProduct($purchasable);
+        $item->setPublished(true);
+        $item->setImmutable(false);
+
+        return $item;
+    }
+}

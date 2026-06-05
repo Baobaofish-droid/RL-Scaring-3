@@ -1,0 +1,255 @@
+services:
+    _defaults:
+        public: true
+
+    # FormTypes für die Rule-Engine-Conditions/Actions in CoreBundle.
+    # autoconfigure: true taggt sie automatisch mit `form.type`, sodass
+    # RegisterStudioFormTypesPass sie in die BlockPrefixFormTypeRegistry übernimmt.
+    CoreShop\Bundle\CoreBundle\Form\Type\Rule\:
+        resource: '../../Form/Type/Rule/'
+        autoconfigure: true
+
+    coreshop.rule.condition.customers:
+        class: CoreShop\Component\Core\Product\Rule\Condition\CustomersConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: customers, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CustomersConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: customers, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CustomersConfigurationType }
+
+    coreshop.rule.condition.customer_groups:
+        class: CoreShop\Component\Core\Product\Rule\Condition\CustomerGroupsConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: customerGroups, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CustomerGroupsConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: customerGroups, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CustomerGroupsConfigurationType }
+
+    coreshop.rule.condition.guest:
+        class: CoreShop\Component\Core\Product\Rule\Condition\GuestConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: guest, form-type: CoreShop\Bundle\RuleBundle\Form\Type\Rule\EmptyConfigurationFormType }
+            - { name: coreshop.product_specific_price_rule.condition, type: guest, form-type: CoreShop\Bundle\RuleBundle\Form\Type\Rule\EmptyConfigurationFormType }
+
+    coreshop.rule.condition.countries:
+        class: CoreShop\Component\Core\Product\Rule\Condition\CountriesConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: countries, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CountriesConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: countries, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CountriesConfigurationType }
+
+    coreshop.rule.condition.zones:
+        class: CoreShop\Component\Core\Product\Rule\Condition\ZonesConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: zones, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\ZonesConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: zones, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\ZonesConfigurationType }
+
+    coreshop.rule.condition.stores:
+        class: CoreShop\Component\Core\Product\Rule\Condition\StoresConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: stores, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\StoresConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: stores, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\StoresConfigurationType }
+
+    coreshop.rule.condition.currencies:
+        class: CoreShop\Component\Core\Product\Rule\Condition\CurrenciesConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: currencies, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CurrenciesConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: currencies, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CurrenciesConfigurationType }
+
+    coreshop.rule.condition.not_combinable_with_cart_price_voucher_rule:
+        class: CoreShop\Component\Core\Product\Rule\Condition\NotCombinableWithCartPriceRuleVoucherConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: not_combinable_with_cart_price_voucher_rule, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Condition\NotCombinableConfigurationType }
+            - { name: coreshop.product_specific_price_rule.condition, type: not_combinable_with_cart_price_voucher_rule, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Condition\NotCombinableConfigurationType }
+
+    coreshop.product_price_rule.condition.categories:
+        class: CoreShop\Component\Core\Product\Rule\Condition\CategoriesConditionChecker
+        arguments:
+            - '@coreshop.repository.category'
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: categories, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CategoriesConfigurationType }
+
+    coreshop.product_price_rule.condition.products:
+        class: CoreShop\Component\Core\Product\Rule\Condition\ProductsConditionChecker
+        arguments:
+            - '@coreshop.repository.product'
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: products, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\ProductsConfigurationType }
+
+    coreshop.product_price_rule.condition.quantity:
+        class: CoreShop\Component\Core\Product\Rule\Condition\QuantityConditionChecker
+        tags:
+            - { name: coreshop.product_price_rule.condition, type: quantity, form-type: CoreShop\Bundle\CoreBundle\Form\Type\ProductPriceRule\Condition\QuantityConfigurationType }
+
+    # Cart Price Rules
+    coreshop.cart_price_rule.condition.categories:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\CategoriesConditionChecker
+        arguments:
+            - '@coreshop.repository.category'
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: categories, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CategoriesConfigurationType }
+
+    coreshop.cart_price_rule.condition.products:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\ProductsConditionChecker
+        arguments:
+            - '@coreshop.repository.product'
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: products, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\ProductsConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.customers:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\CustomersConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: customers, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CustomersConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.customer_groups:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\CustomerGroupsConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: customerGroups, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CustomerGroupsConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.guest:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\GuestConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: guest, form-type: CoreShop\Bundle\RuleBundle\Form\Type\Rule\EmptyConfigurationFormType }
+
+    coreshop.rule.cart_price_rule.condition.countries:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\CountriesConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: countries, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CountriesConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.zones:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\ZonesConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: zones, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\ZonesConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.stores:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\StoresConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: stores, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\StoresConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.currencies:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\CurrenciesConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: currencies, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CurrenciesConfigurationType }
+
+    coreshop.rule.cart_price_rule.condition.carriers:
+        class: CoreShop\Component\Core\Cart\Rule\Condition\CarriersConditionChecker
+        tags:
+            - { name: coreshop.cart_price_rule.condition, type: carriers, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CarriersConfigurationType }
+
+    coreshop.rule.cart_price_rule.action.free_shipping:
+        class: CoreShop\Component\Core\Cart\Rule\Action\FreeShippingActionProcessor
+        arguments:
+            - '@coreshop.factory.adjustment'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: freeShipping, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Action\FreeShippingConfigurationType }
+
+    coreshop.rule.cart_price_rule.action.gift_product:
+        class: CoreShop\Component\Core\Cart\Rule\Action\GiftProductActionProcessor
+        arguments:
+            - '@coreshop.repository.stack.purchasable'
+            - '@coreshop.factory.order_item'
+            - '@coreshop.factory.adjustment'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: giftProduct, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Action\GiftProductConfigurationType }
+
+    coreshop.cart_price_rule.action.discount_amount:
+        class: CoreShop\Component\Core\Cart\Rule\Action\DiscountAmountActionProcessor
+        arguments:
+            - '@CoreShop\Component\Currency\Converter\CurrencyConverterInterface'
+            - '@coreshop.repository.currency'
+            - '@coreshop.cart_price_rule.cart_rule_applier'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: discountAmount, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Action\DiscountAmountConfigurationType }
+
+    coreshop.cart_price_rule.action.voucher_credit:
+        class: CoreShop\Component\Core\Cart\Rule\Action\VoucherCreditActionProcessor
+        arguments:
+            - '@CoreShop\Component\Currency\Converter\CurrencyConverterInterface'
+            - '@coreshop.cart_price_rule.cart_rule_applier'
+            - '@coreshop.repository.cart_price_rule_voucher_code'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: voucherCredit }
+
+    coreshop.cart_price_rule.action.surcharge_amount:
+        class: CoreShop\Component\Core\Cart\Rule\Action\SurchargeAmountActionProcessor
+        arguments:
+            - '@CoreShop\Component\Currency\Converter\CurrencyConverterInterface'
+            - '@coreshop.repository.currency'
+            - '@coreshop.cart_price_rule.cart_rule_applier'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: surchargeAmount, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Action\SurchargeAmountConfigurationType }
+
+    coreshop.cart_price_rule.action.discount_percent:
+        class: CoreShop\Component\Core\Cart\Rule\Action\DiscountPercentActionProcessor
+        arguments:
+            - '@coreshop.cart_price_rule.cart_rule_applier'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: discountPercent, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Action\DiscountPercentConfigurationType }
+
+    coreshop.cart_price_rule.action.surcharge_percent:
+        class: CoreShop\Component\Core\Cart\Rule\Action\SurchargePercentActionProcessor
+        arguments:
+            - '@coreshop.cart_price_rule.cart_rule_applier'
+        tags:
+            - { name: coreshop.cart_price_rule.action, type: surchargePercent, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Action\SurchargePercentConfigurationType }
+
+    coreshop.cart_price_rule.cart_rule_applier:
+        class: CoreShop\Component\Core\Cart\Rule\Applier\CartRuleApplier
+        arguments:
+            - '@CoreShop\Component\Order\Distributor\ProportionalIntegerDistributorInterface'
+            - '@CoreShop\Component\Core\Product\ProductTaxCalculatorFactoryInterface'
+            - '@CoreShop\Component\Taxation\Collector\TaxCollectorInterface'
+            - '@CoreShop\Component\Core\Provider\AddressProviderInterface'
+            - '@coreshop.factory.adjustment'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+
+    coreshop.cart_price_rule.cart_item_rule_applier:
+        class: CoreShop\Component\Core\CartItem\Rule\Applier\CartItemRuleApplier
+        arguments:
+            - '@CoreShop\Component\Core\Product\ProductTaxCalculatorFactoryInterface'
+            - '@CoreShop\Component\Taxation\Collector\TaxCollectorInterface'
+            - '@CoreShop\Component\Core\Provider\AddressProviderInterface'
+            - '@coreshop.factory.adjustment'
+            - '@CoreShop\Component\Order\Cart\CartContextResolverInterface'
+
+    # Rules Availability Check
+    coreshop.maintenance.rule_availability_task:
+        class: CoreShop\Bundle\CoreBundle\Maintenance\RuleAvailabilityTask
+        arguments:
+            - '@CoreShop\Component\Core\Configuration\ConfigurationServiceInterface'
+            - '@CoreShop\Bundle\RuleBundle\Processor\RuleAvailabilityProcessorInterface'
+        tags:
+            - { name: pimcore.maintenance.task, type: coreshop_rule_availability }
+
+    CoreShop\Bundle\CoreBundle\Twig\ValidPriceRulesExtension:
+        public: false
+        arguments:
+            - '@coreshop.product.rules.fetcher'
+        tags:
+            - { name: twig.extension }
+
+    # Cart Item Price Rule ACTIONS
+    coreshop.cart_item_price_rule.action.discount_amount:
+        class: CoreShop\Component\Core\CartItem\Rule\Action\DiscountAmountActionProcessor
+        arguments:
+            - '@CoreShop\Component\Currency\Converter\CurrencyConverterInterface'
+            - '@coreshop.repository.currency'
+            - '@coreshop.cart_price_rule.cart_item_rule_applier'
+        tags:
+            - { name: coreshop.cart_item_price_rule.action, type: discountAmount, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Action\DiscountAmountConfigurationType }
+
+    coreshop.cart_item_price_rule.action.discount_percent:
+        class: CoreShop\Component\Core\CartItem\Rule\Action\DiscountPercentActionProcessor
+        arguments:
+            - '@coreshop.cart_price_rule.cart_item_rule_applier'
+        tags:
+            - { name: coreshop.cart_item_price_rule.action, type: discountPercent, form-type: CoreShop\Bundle\OrderBundle\Form\Type\Rule\Action\DiscountPercentConfigurationType }
+
+    coreshop.cart_item_price_rule.condition.products:
+        class: CoreShop\Component\Core\CartItem\Rule\Condition\ProductsConditionChecker
+        arguments:
+            - '@coreshop.repository.product'
+        tags:
+            - { name: coreshop.cart_item_price_rule.condition, type: products, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\ProductsConfigurationType }
+
+    coreshop.cart_item_price_rule.condition.categories:
+        class: CoreShop\Component\Core\CartItem\Rule\Condition\CategoriesConditionChecker
+        arguments:
+            - '@coreshop.repository.category'
+        tags:
+            - { name: coreshop.cart_item_price_rule.condition, type: categories, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CategoriesConfigurationType }

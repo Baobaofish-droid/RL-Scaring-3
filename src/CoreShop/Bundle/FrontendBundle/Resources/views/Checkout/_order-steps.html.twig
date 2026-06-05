@@ -1,0 +1,10 @@
+<div class="cartprogress mb-5" style="border-bottom:0;">
+    {% set steps = coreshop_checkout_steps() %}
+    {% set stepCount = steps|length %}
+    {% set columnWidth = (12 / stepCount)|round(0, 'floor') %}
+    {% set columnsLeft = (12 % stepCount) / 2 %}
+
+    {% for identifier, step in steps %}
+        <a href="{{ step.url }}" class="{% if step.current %}active {% elseif step.done %}completed {% endif %}">{{ identifier|trans }}</a>
+    {% endfor %}
+</div>

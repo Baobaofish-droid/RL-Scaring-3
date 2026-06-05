@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\ProductQuantityPriceRules\Rule\Fetcher;
+
+use CoreShop\Component\ProductQuantityPriceRules\Model\QuantityRangePriceAwareInterface;
+use CoreShop\Component\Rule\Condition\RuleValidationProcessorInterface;
+
+final class ValidProductQuantityPriceRuleFetcher implements ValidRulesFetcherInterface
+{
+    public function __construct(
+        private RuleValidationProcessorInterface $ruleValidationProcessor,
+    ) {
+    }
+
+    public function getValidRules(QuantityRangePriceAwareInterface $product, array $context): array
+    {
+        $validRules = [];
+        $rules = $product->getQuantityPriceRules();
+
+        foreach ($rules as $rule) {
+            if (!$this->ruleValidationProcessor->isValid($product, $rule, $context)) {
+                continue;
+            }
+
+            $validRules[] = $rule;
+        }
+
+        return $validRules;
+    }
+}

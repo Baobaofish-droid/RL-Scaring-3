@@ -1,0 +1,12 @@
+CoreShop\Component\Product\Model\ProductSpecificPriceRule:
+    exclusion_policy: ALL
+    xml_root_name: product_specific_price_rule
+    properties:
+        inherit:
+            expose: true
+            type: boolean
+            groups: [Detailed, Version]
+        translations:
+            expose: true
+            type: ArrayCollection<CoreShop\Component\Product\Model\ProductSpecificPriceRuleTranslation>
+            groups: [Detailed, Version]

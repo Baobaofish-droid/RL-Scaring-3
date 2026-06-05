@@ -1,0 +1,34 @@
+CoreShop\Component\Payment\Model\PaymentProvider:
+    exclusion_policy: ALL
+    xml_root_name: payment_provider
+    properties:
+        id:
+            expose: true
+            type: integer
+            xml_attribute: true
+            groups: [List, Detailed]
+        active:
+            expose: true
+            type: string
+            groups: [List, Detailed]
+        identifier:
+            expose: true
+            type: string
+            groups: [List, Detailed]
+        position:
+            expose: true
+            type: integer
+            groups: [Detailed]
+        logo:
+            expose: true
+            type: pimcoreAsset
+            groups: [Detailed]
+        translations:
+            expose: true
+            type: ArrayCollection
+            groups: [Detailed]
+        paymentProviderRules:
+            expose: true
+            type: ArrayCollection
+            groups: [Detailed]
+

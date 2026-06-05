@@ -1,0 +1,10 @@
+CoreShop\Component\Customer\Model\Customer:
+    getters:
+        gender:
+            - NotBlank: { groups: [coreshop] }
+        firstname:
+            - NotBlank: { groups: [coreshop] }
+        lastname:
+            - NotBlank: { groups: [coreshop] }
+        email:
+            - NotBlank: { groups: [coreshop] }

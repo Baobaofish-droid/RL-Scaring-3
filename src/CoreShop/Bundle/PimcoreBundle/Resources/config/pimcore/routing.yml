@@ -1,0 +1,54 @@
+coreshop_pimcore_grid_get_studio_filters:
+    path: /%coreshop.admin.route.base%/grid/studio-filters/{listType}
+    requirements:
+        backend: '%coreshop.admin.route.backend_requirement%'
+    methods: [GET]
+    defaults:
+        backend: admin
+        _controller: CoreShop\Bundle\PimcoreBundle\Controller\GridController::getStudioGridFiltersAction
+    options:
+        expose: true
+
+coreshop_pimcore_grid_get_actions:
+    path: /%coreshop.admin.route.base%/grid/actions/{listType}
+    requirements:
+        backend: '%coreshop.admin.route.backend_requirement%'
+    methods: [GET]
+    defaults:
+        backend: admin
+        _controller: CoreShop\Bundle\PimcoreBundle\Controller\GridController::getGridActionsAction
+    options:
+        expose: true
+
+coreshop_pimcore_grid_apply_action:
+    path: /%coreshop.admin.route.base%/grid/apply-action
+    requirements:
+        backend: '%coreshop.admin.route.backend_requirement%'
+    methods: [POST]
+    defaults:
+        backend: admin
+        _controller: CoreShop\Bundle\PimcoreBundle\Controller\GridController::applyGridAction
+    options:
+        expose: true
+
+coreshop_dynamic_dropdown_options:
+    path: /%coreshop.admin.route.base%/dynamic-dropdown/options
+    requirements:
+        backend: '%coreshop.admin.route.backend_requirement%'
+    defaults:
+        backend: admin
+        _controller: CoreShop\Bundle\PimcoreBundle\Controller\DynamicDropdownController::optionsAction
+    methods: [GET, POST]
+    options:
+        expose: true
+
+coreshop_dynamic_dropdown_methods:
+    path: /%coreshop.admin.route.base%/dynamic-dropdown/methods
+    requirements:
+        backend: '%coreshop.admin.route.backend_requirement%'
+    defaults:
+        backend: admin
+        _controller: CoreShop\Bundle\PimcoreBundle\Controller\DynamicDropdownController::methodsAction
+    methods: [GET, POST]
+    options:
+        expose: true

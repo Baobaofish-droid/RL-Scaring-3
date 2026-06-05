@@ -1,0 +1,52 @@
+imports:
+    - { resource: services/form.yml }
+    - { resource: services/profiler.yml }
+    - { resource: services/pimcore.yml }
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Address\Context\CountryContextInterface: '@CoreShop\Component\Address\Context\CompositeCountryContext'
+    CoreShop\Component\Address\Context\CompositeCountryContext:
+        public: false
+
+    CoreShop\Component\Address\Context\RequestBased\CountryContext:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Address\Context\RequestBased\CompositeRequestResolver'
+            - '@request_stack'
+        tags:
+            - { name: coreshop.context.country }
+
+    CoreShop\Component\Address\Context\FixedCountryContext:
+        tags:
+            - { name: coreshop.context.country }
+
+    CoreShop\Component\Address\Context\RequestBased\CompositeRequestResolver:
+        public: false
+
+    CoreShop\Component\Address\Context\RequestBased\CachedCountryContext:
+        decorates: CoreShop\Component\Address\Context\RequestBased\CompositeRequestResolver
+        decoration_priority: 255
+        arguments:
+            - '@CoreShop\Component\Address\Context\RequestBased\CachedCountryContext.inner'
+
+    CoreShop\Component\Address\Formatter\AddressFormatterInterface: '@CoreShop\Component\Address\Formatter\AddressFormatter'
+    CoreShop\Component\Address\Formatter\AddressFormatter:
+        arguments:
+            - '@twig'
+            - '@translator'
+
+    CoreShop\Bundle\AddressBundle\Twig\FormatAddressExtension:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Address\Formatter\AddressFormatterInterface'
+        tags:
+            - { name: twig.extension }
+
+    CoreShop\Bundle\AddressBundle\Validator\Constraints\ValidAddressIdentifierValidator:
+        arguments:
+            - '@coreshop.repository.address_identifier'
+        tags:
+            - { name: validator.constraint_validator, alias: coreshop_address_valid_identifier }

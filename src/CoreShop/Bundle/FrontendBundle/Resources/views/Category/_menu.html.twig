@@ -1,0 +1,33 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container">
+        <button class="navbar-toggler mx-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavMain" aria-controls="navbarNavMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavMain">
+            <ul class="navbar-nav justify-content-between w-100">
+            {% for category in categories %}
+                {% set dropdown = category.hasChildCategories %}
+
+                <li class="nav-item{% if dropdown %} dropdown {% endif %}">
+                    <a href="{{ pimcore_object_path(category) }}" class="nav-link{% if dropdown %} dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="10{%  endif %}" {{  coreshop_test_html_attribute('category-menu-top',category.name) }}>
+                        {{ category.name }}
+                    </a>
+
+                    {% if dropdown  %}
+                        <ul class="dropdown-menu" role="menu">
+                            {% for childCategory in category.childCategories %}
+                                <li class="dropdown-item">
+                                    <!-- TODO: URL -->
+                                    <a tabindex="-1" href="#" {{  coreshop_test_html_attribute('category-menu-top',childCategory.name) }}>
+                                        {{ childCategory.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {%  endif  %}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>

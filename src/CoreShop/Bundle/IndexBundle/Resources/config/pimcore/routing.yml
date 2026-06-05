@@ -1,0 +1,48 @@
+coreshop_admin_index:
+    type: coreshop.resources
+    resource: |
+      alias: coreshop.index
+      clone: true
+      additional_routes:
+        config:
+          path: get-config
+          action: getConfig
+          methods:
+            - GET
+        types:
+          path: get-types
+          action: getTypes
+          methods:
+            - GET
+        classDefinition:
+          path: get-class-definition-for-field-selection
+          action: getClassDefinitionForFieldSelection
+          methods:
+            - GET
+        openSearchClients:
+          path: get-opensearch-clients
+          action: getOpenSearchClients
+          methods:
+            - GET
+
+coreshop_admin_filter:
+    type: coreshop.resources
+    resource: |
+      alias: coreshop.filter
+      clone: true
+      additional_routes:
+        config:
+          path: get-config
+          action: getConfig
+          methods:
+            - GET
+        fieldsForIndex:
+          path: get-fields-for-index
+          action: getFieldsForIndex
+          methods:
+            - GET
+        valuesForField:
+          path: get-values-for-filter-field
+          action: getValuesForFilterField
+          methods:
+            - GET

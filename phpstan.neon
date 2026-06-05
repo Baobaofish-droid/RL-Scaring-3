@@ -1,0 +1,60 @@
+parameters:
+    reportUnmatchedIgnoredErrors: false
+    level: 3
+    paths:
+        - src
+
+    symfony:
+        containerXmlPath: var/cache/dev/KernelDevDebugContainer.xml
+
+    excludePaths:
+        # Makes PHPStan crash
+        - '**/DependencyInjection/Configuration.php'
+        - '**/Migrations/Version*.php'
+        - '**/DataHub/*.php'
+        # Optional studio bundles
+        - '**/Studio/*.php'
+        - '**/Studio/**/*.php'
+        - '**/StudioBackend/**/*.php'
+        - src/CoreShop/Component/Pimcore/SplPriorityQueue.php
+        - src/CoreShop/Component/Pimcore/PriorityQueue.php
+
+    ignoreErrors:
+        - identifier: varTag.nativeType
+
+        # Magic calls
+        - '/Call to an undefined static method Webmozart\\Assert\\Assert::all/'
+        - '/Call to an undefined static method Webmozart\\Assert\\Assert::nullOr/'
+        - '/Call to an undefined method Faker\\Generator::/'
+        - '/Access to an undefined property Faker\\Generator::/'
+        - '/Constant PIMCORE_CONFIGURATION_DIRECTORY not found./'
+        - '/Constant PIMCORE_CLASS_DIRECTORY not found./'
+        - '/Constant PIMCORE_WEB_ROOT not found./'
+        - '/Constant PIMCORE_DEVMODE not found./'
+
+        - '/Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\)/'
+        - '/Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface/'
+        - '/Call to method (arrayNode|scalarNode|booleanNode|integerNode|floatNode|enumNode|variableNode)\(\) on an unknown class Symfony\\Component\\Config\\Definition\\Builder\\NodeBuilder/'
+        - '/Call to an undefined method Pimcore\\Model\\\(.*\)::save\(\)./'
+        - '/Call to an undefined method Pimcore\\Model\\\(.*\)::delete\(\)./'
+        - '/Method Pimcore\\Model\\DataObject\\Concrete::getLatestVersion\(\)(.*)/'
+        - '/Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\)/'
+        - '/Method CoreShop\\Bundle\\ResourceBundle\\Routing\\ResourceLoader::getResolver\(\) should return Symfony\\Component\\Config\\Loader\\LoaderResolverInterface but return statement is missing./'
+        - '/PHPDoc type string of property CoreShop\\Bundle\\PayumBundle\\Request\\GetStatus::\$status is not covariant with PHPDoc type int of overridden property Payum\\Core\\Request\\BaseGetStatus::\$status./'
+        - '/Method CoreShop\\Bundle\\ResourceBundle\\Controller\\AdminController::getSubscribedServices\(\) should return non-empty-array<string|Symfony\\Contracts\\Service\\Attribute\\SubscribedService> but returns array<string>./'
+        - '/Pimcore\\Model\\DataObject\\ClassDefinition\\DynamicOptionsProvider\\MultiSelectOptionsProviderInterface is marked deprecated/'
+
+        # Pimcore BC Breaks
+        - '/Class Pimcore\\Model\\DataObject\\LazyLoadedFieldsInterface not found/'
+        - '/Class Pimcore\\Model\\DataObject\\ClassDefinition\\Data\\\CustomVersionMarshalInterface not found/'
+        - '/Call to method markLazyKeyAsLoaded\(\) on an unknown class Pimcore\\Model\\DataObject\\LazyLoadedFieldsInterface/'
+        - '/Call to method isLazyKeyLoaded\(\) on an unknown class Pimcore\\Model\\DataObject\\LazyLoadedFieldsInterface/'
+        - '/Access to undefined constant PackageVersions\\Versions::VERSIONS/'
+        # Optional dependencies
+        - identifier: class.notFound
+          message: '/Pimcore\\Bundle\\(AdminBundle|StudioBackendBundle|StudioUiBundle|GoogleMarketingBundle|NewsletterBundle)\\/'
+
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-webmozart-assert/extension.neon

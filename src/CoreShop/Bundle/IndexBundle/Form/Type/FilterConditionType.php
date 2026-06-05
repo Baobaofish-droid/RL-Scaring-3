@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\IndexBundle\Form\Type;
+
+use CoreShop\Bundle\ResourceBundle\Form\Registry\FormTypeRegistryInterface;
+use CoreShop\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+class FilterConditionType extends AbstractResourceType
+{
+    public function __construct(
+        string $dataClass,
+        array $validationGroups,
+        private FormTypeRegistryInterface $formTypeRegistry,
+    ) {
+        parent::__construct($dataClass, $validationGroups);
+    }
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        parent::buildForm($builder, $options);
+
+        $builder
+            ->add('id', IntegerType::class, ['mapped' => false])
+            ->add('type', FilterConditionChoiceType::class)
+            ->add('label', TextType::class)
+            ->add('sort', IntegerType::class)
+            ->add('quantityUnit', TextType::class)
+        ;
+
+        $builder
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+                $type = $this->getRegistryIdentifier($event->getForm(), $event->getData());
+                if (null === $type) {
+                    return;
+                }
+
+                if (!$this->formTypeRegistry->has($type, 'default')) {
+                    return;
+                }
+
+                $this->addConfigurationFields($event->getForm(), $this->formTypeRegistry->get($type, 'default'));
+            })
+            ->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event): void {
+                $type = $this->getRegistryIdentifier($event->getForm(), $event->getData());
+                if (null === $type) {
+                    return;
+                }
+
+                $event->getForm()->get('type')->setData($type);
+            })
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+                $data = $event->getData();
+
+                if (!isset($data['type'])) {
+                    return;
+                }
+
+                if (!$this->formTypeRegistry->has($data['type'], 'default')) {
+                    return;
+                }
+
+                $this->addConfigurationFields($event->getForm(), $this->formTypeRegistry->get($data['type'], 'default'));
+            })
+        ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        parent::configureOptions($resolver);
+
+        $resolver
+            ->setDefault('configuration_type', null)
+            ->setAllowedTypes('configuration_type', ['string', 'null'])
+        ;
+    }
+
+    protected function addConfigurationFields(FormInterface $form, string $configurationType): void
+    {
+        $form->add('configuration', $configurationType);
+    }
+
+    protected function getRegistryIdentifier(FormInterface $form, mixed $data = null): ?string
+    {
+        if (null !== $data && null !== $data->getType()) {
+            return $data->getType();
+        }
+
+        return null;
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'coreshop_filter_condition';
+    }
+}

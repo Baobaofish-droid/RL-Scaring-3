@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\StorageList\Repository;
+
+use Carbon\Carbon;
+use CoreShop\Component\StorageList\Model\StorageListInterface;
+use Pimcore\Model\DataObject\Listing;
+
+trait CustomerExpiryRepositoryTrait
+{
+    public function findExpiredStorageLists(int $days, array $params = []): array
+    {
+        $daysTimestamp = Carbon::now();
+        $daysTimestamp->subDays($days);
+
+        $conditions = ['modificationDate < ?'];
+        $queryParams = [$daysTimestamp->getTimestamp()];
+        $groupCondition = [];
+
+        if (isset($params['anonymous']) && true === $params['anonymous']) {
+            $groupCondition[] = 'customer__id IS NULL';
+        }
+
+        if (isset($params['customer']) && true === $params['customer']) {
+            $groupCondition[] = 'customer__id IS NOT NULL';
+        }
+
+        $bind = ' AND ';
+        $groupBind = ' OR ';
+
+        $sql = implode($bind, $conditions);
+        $sql .= ' AND (' . implode($groupBind, $groupCondition) . ') ';
+
+        $list = $this->getList();
+        $list->setCondition($sql, $queryParams);
+
+        /**
+         * @var StorageListInterface[] $result
+         */
+        $result = $list->getObjects();
+
+        return $result;
+    }
+
+    /**
+     * @return Listing
+     */
+    abstract public function getList();
+}

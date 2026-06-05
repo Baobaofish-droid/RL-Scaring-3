@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\ProductQuantityPriceRulesBundle\Form\Type;
+
+use CoreShop\Bundle\RuleBundle\Form\Type\RuleType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
+final class ProductQuantityPriceRuleType extends RuleType
+{
+    public function __construct(
+        string $dataClass,
+        array $validationGroups,
+        protected array $calculatorTypes,
+    ) {
+        parent::__construct($dataClass, $validationGroups);
+    }
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextareaType::class)
+            ->add('calculationBehaviour', ChoiceType::class, [
+                'choices' => $this->calculatorTypes,
+                'constraints' => [
+                    new NotBlank(groups: $this->validationGroups),
+                ],
+            ])
+            ->add('active', CheckboxType::class)
+            ->add('priority', NumberType::class)
+            ->add('conditions', ProductQuantityPriceRuleConditionCollectionType::class)
+            ->add('ranges', ProductQuantityRangeCollectionType::class)
+        ;
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'coreshop_product_quantity_price_rule';
+    }
+}

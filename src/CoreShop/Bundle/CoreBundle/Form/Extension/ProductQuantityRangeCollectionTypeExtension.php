@@ -1,0 +1,91 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\CoreBundle\Form\Extension;
+
+use CoreShop\Bundle\ProductQuantityPriceRulesBundle\Form\Type\ProductQuantityRangeCollectionType;
+use CoreShop\Component\Core\Model\QuantityRangeInterface;
+use CoreShop\Component\Product\Model\ProductUnitDefinitionInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Form\AbstractTypeExtension;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+
+class ProductQuantityRangeCollectionTypeExtension extends AbstractTypeExtension
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            /** @var ArrayCollection $data */
+            $data = $event->getData();
+            $form = $event->getForm();
+            $dataCheck = [];
+
+            /**
+             * @var int                    $rowIndex
+             * @var QuantityRangeInterface $quantityRange
+             */
+            foreach ($data as $rowIndex => $quantityRange) {
+                $realRowIndex = $rowIndex + 1;
+
+                $unit = $quantityRange->getUnitDefinition() instanceof ProductUnitDefinitionInterface ? $quantityRange->getUnitDefinition()->getUnitName() : 'default';
+
+                if (!isset($dataCheck[$unit])) {
+                    $dataCheck[$unit] = [];
+                }
+
+                $dataCheck[$unit][] = [
+                    'row' => $realRowIndex,
+                    'startingFrom' => $quantityRange->getRangeStartingFrom(),
+                ];
+            }
+
+            foreach ($dataCheck as $quantityRangesToCheck) {
+                $lastEnd = -1;
+
+                /**
+                 * @var array $quantityRangeToCheck
+                 */
+                foreach ($quantityRangesToCheck as $quantityRangeToCheck) {
+                    $realRowIndex = $quantityRangeToCheck['row'];
+                    $startingFrom = $quantityRangeToCheck['startingFrom'];
+
+                    if ((float) $startingFrom < 0) {
+                        $form->addError(new FormError('Field "starting from" in row ' . $realRowIndex . '  needs to be greater or equal than 0'));
+
+                        break;
+                    }
+
+                    if ((float) $startingFrom <= $lastEnd) {
+                        $form->addError(new FormError('Field "starting from" in row ' . $realRowIndex . '  needs to be greater than ' . $lastEnd));
+
+                        break;
+                    }
+
+                    $lastEnd = (float) $startingFrom;
+                }
+            }
+        });
+    }
+
+    public static function getExtendedTypes(): iterable
+    {
+        return [ProductQuantityRangeCollectionType::class];
+    }
+}

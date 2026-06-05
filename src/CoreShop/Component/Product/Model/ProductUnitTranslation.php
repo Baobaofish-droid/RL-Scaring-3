@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Product\Model;
+
+use CoreShop\Component\Resource\Model\AbstractTranslation;
+use CoreShop\Component\Resource\Model\TimestampableTrait;
+
+/**
+ * @psalm-suppress MissingConstructor
+ */
+class ProductUnitTranslation extends AbstractTranslation implements ProductUnitTranslationInterface
+{
+    use TimestampableTrait;
+
+    /**
+     * @var mixed
+     */
+    protected $id;
+
+    /**
+     * @var string
+     */
+    protected $fullLabel;
+
+    /**
+     * @var string
+     */
+    protected $fullPluralLabel;
+
+    /**
+     * @var string
+     */
+    protected $shortLabel;
+
+    /**
+     * @var string
+     */
+    protected $shortPluralLabel;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getFullLabel()
+    {
+        return $this->fullLabel;
+    }
+
+    public function setFullLabel($fullLabel)
+    {
+        $this->fullLabel = $fullLabel;
+    }
+
+    public function getFullPluralLabel()
+    {
+        return $this->fullPluralLabel;
+    }
+
+    public function setFullPluralLabel($fullPluralLabel)
+    {
+        $this->fullPluralLabel = $fullPluralLabel;
+    }
+
+    public function getShortLabel()
+    {
+        return $this->shortLabel;
+    }
+
+    public function setShortLabel($shortLabel)
+    {
+        $this->shortLabel = $shortLabel;
+    }
+
+    public function getShortPluralLabel()
+    {
+        return $this->shortPluralLabel;
+    }
+
+    public function setShortPluralLabel($shortPluralLabel)
+    {
+        $this->shortPluralLabel = $shortPluralLabel;
+    }
+}

@@ -1,0 +1,33 @@
+services:
+    coreshop.registry.tracking.tracker:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        public: true
+        arguments:
+            - CoreShop\Component\Tracking\Tracker\TrackerInterface
+            - 'tracker'
+        tags:
+            - { name: coreshop.registry, type_hint: trackers }
+
+    coreshop.registry.tracking.extractor:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        public: true
+        arguments:
+            - CoreShop\Component\Tracking\Extractor\TrackingExtractorInterface
+            - 'tracking-extractor'
+        tags:
+            - { name: coreshop.registry, type_hint: trackingExtractors }
+
+    CoreShop\Component\Tracking\Extractor\TrackingExtractorInterface: '@CoreShop\Component\Tracking\Extractor\CompositeExtractor'
+    CoreShop\Component\Tracking\Extractor\CompositeExtractor:
+        arguments:
+            - '@coreshop.registry.tracking.extractor'
+
+    CoreShop\Component\Tracking\Tracker\TrackerInterface:
+        alias: 'CoreShop\Component\Tracking\Tracker\CompositeTracker'
+        public: true
+
+    CoreShop\Component\Tracking\Tracker\CompositeTracker:
+        public: true
+        arguments:
+            - '@CoreShop\Component\Tracking\Extractor\TrackingExtractorInterface'
+            - '@coreshop.registry.tracking.tracker'

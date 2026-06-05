@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\CoreBundle\Report;
+
+use Carbon\Carbon;
+use CoreShop\Component\Core\Report\ReportInterface;
+use CoreShop\Component\Currency\Formatter\MoneyFormatterInterface;
+use CoreShop\Component\Locale\Context\LocaleContextInterface;
+use CoreShop\Component\Order\OrderSaleStates;
+use CoreShop\Component\Order\OrderStates;
+use CoreShop\Component\Resource\Repository\PimcoreRepositoryInterface;
+use Doctrine\DBAL\Connection;
+use Symfony\Component\HttpFoundation\ParameterBag;
+
+class CustomersReport implements ReportInterface
+{
+    private int $totalRecords = 0;
+
+    public function __construct(
+        private Connection $db,
+        private MoneyFormatterInterface $moneyFormatter,
+        private LocaleContextInterface $localeContext,
+        private PimcoreRepositoryInterface $orderRepository,
+        private PimcoreRepositoryInterface $customerRepository,
+    ) {
+    }
+
+    public function getReportData(ParameterBag $parameterBag): array
+    {
+        $fromFilter = $parameterBag->get('from', strtotime(date('01-m-Y')));
+        $toFilter = $parameterBag->get('to', strtotime(date('t-m-Y')));
+        $from = Carbon::createFromTimestamp($fromFilter);
+        $to = Carbon::createFromTimestamp($toFilter);
+
+        $page = $parameterBag->get('page', 1);
+        $limit = $parameterBag->get('limit', 25);
+        $offset = $parameterBag->get('offset', $page === 1 ? 0 : ($page - 1) * $limit);
+
+        $orderClassId = $this->orderRepository->getClassId();
+        $customerClassId = $this->customerRepository->getClassId();
+        $orderCompleteState = OrderStates::STATE_COMPLETE;
+
+        $query = "
+            SELECT SQL_CALC_FOUND_ROWS
+              customer.oo_id,
+              customer.email as `emailAddress`,
+              SUM(orders.totalNet) as sales,
+              COUNT(customer.oo_id) as `orderCount`
+            FROM object_query_$orderClassId AS orders
+            INNER JOIN object_query_$customerClassId AS customer ON orders.customer__id = customer.oo_id
+            WHERE  orders.orderState = '$orderCompleteState' AND orders.orderDate > :fromTimestamp AND orders.orderDate < :toTimestamp AND customer.oo_id IS NOT NULL AND saleState='" . OrderSaleStates::STATE_ORDER . "'
+            GROUP BY customer.oo_id
+            ORDER BY COUNT(customer.oo_id) DESC
+            LIMIT " . (int) $offset . ', ' . (int) $limit;
+
+        $results = $this->db->fetchAllAssociative($query, [
+            'fromTimestamp' => $from->getTimestamp(),
+            'toTimestamp' => $to->getTimestamp(),
+        ]);
+        $this->totalRecords = (int) $this->db->fetchOne('SELECT FOUND_ROWS()');
+
+        foreach ($results as &$result) {
+            $result['salesFormatted'] = $this->moneyFormatter->format(
+                (int) $result['sales'],
+                'EUR',
+                $this->localeContext->getLocaleCode(),
+            );
+        }
+
+        return $results;
+    }
+
+    public function getTotal(): int
+    {
+        return $this->totalRecords;
+    }
+}

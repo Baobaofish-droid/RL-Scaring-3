@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\OrderBundle\Form\Type;
+
+use CoreShop\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
+use CoreShop\Bundle\RuleBundle\Form\Type\RuleType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+
+final class CartPriceRuleType extends RuleType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => CartPriceRuleTranslationType::class,
+            ])
+            ->add('name', TextType::class)
+            ->add('isVoucherRule', CheckboxType::class)
+            ->add('active', CheckboxType::class)
+            ->add('priority', NumberType::class)
+            ->add('description', TextareaType::class)
+            ->add('conditions', CartPriceRuleConditionCollectionType::class)
+            ->add('actions', CartPriceRuleActionCollectionType::class)
+        ;
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'coreshop_cart_price_rule';
+    }
+}

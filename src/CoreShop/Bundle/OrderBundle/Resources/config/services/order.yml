@@ -1,0 +1,28 @@
+services:
+    _defaults:
+        public: true
+
+    coreshop.order.number_generator.default:
+        class: CoreShop\Component\Order\NumberGenerator\SequenceNumberGenerator
+        arguments:
+            - '@CoreShop\Component\Sequence\Generator\SequenceGeneratorInterface'
+            - 'order'
+
+    coreshop.quote.number_generator.default:
+        class: CoreShop\Component\Order\NumberGenerator\SequenceNumberGenerator
+        arguments:
+            - '@CoreShop\Component\Sequence\Generator\SequenceGeneratorInterface'
+            - 'quote'
+
+    CoreShop\Bundle\OrderBundle\Twig\OrderStateExtension:
+        arguments:
+            - '@CoreShop\Bundle\WorkflowBundle\StateManager\WorkflowStateInfoManagerInterface'
+        tags:
+            - { name: twig.extension }
+
+    CoreShop\Bundle\OrderBundle\Twig\ImageToBase64Extension:
+        arguments:
+            - '@serializer'
+            - '%kernel.project_dir%'
+        tags:
+            - { name: twig.extension }

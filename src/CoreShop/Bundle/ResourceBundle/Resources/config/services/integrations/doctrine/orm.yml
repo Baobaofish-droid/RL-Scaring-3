@@ -1,0 +1,25 @@
+parameters:
+    coreshop.orm.repository.class: CoreShop\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository
+    coreshop.translation.translatable_listener.doctrine.orm.class: CoreShop\Bundle\ResourceBundle\EventListener\ORMTranslatableListener
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\EventListener\ORMMappedSuperClassSubscriber:
+        arguments:
+            - '@CoreShop\Component\Resource\Metadata\RegistryInterface'
+        tags:
+            - { name: doctrine.event_subscriber, priority: 8192 }
+
+    CoreShop\Bundle\ResourceBundle\EventListener\ORMRepositoryClassSubscriber:
+        arguments:
+            - '@CoreShop\Component\Resource\Metadata\RegistryInterface'
+        tags:
+            - { name: doctrine.event_subscriber, priority: 8192 }
+
+    CoreShop\Bundle\ResourceBundle\Doctrine\ResourceMappingDriverChain:
+        decorates: 'doctrine.orm.default_metadata_driver'
+        arguments:
+            - '@CoreShop\Bundle\ResourceBundle\Doctrine\ResourceMappingDriverChain.inner'
+            - '@CoreShop\Component\Resource\Metadata\RegistryInterface'

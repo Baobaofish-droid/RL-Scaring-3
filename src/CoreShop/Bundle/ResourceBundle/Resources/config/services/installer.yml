@@ -1,0 +1,80 @@
+services:
+    _defaults:
+        public: true
+
+    coreshop.registry.resource.installers:
+        class: CoreShop\Component\Registry\PrioritizedServiceRegistry
+        arguments:
+            - CoreShop\Bundle\ResourceBundle\Installer\ResourceInstallerInterface
+            - 'coreshop-resource-installer'
+        tags:
+            - { name: coreshop.registry, type_hint: resourceInstallers }
+
+    coreshop.resource.installer.classes:
+        alias: 'CoreShop\Bundle\ResourceBundle\Installer\PimcoreClassInstaller'
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\Installer\PimcoreClassInstaller:
+        arguments:
+            - '@kernel'
+            - '@CoreShop\Component\Pimcore\DataObject\ClassInstallerInterface'
+        tags:
+            - { name: coreshop.resource.installer, type: classes, priority: 100}
+
+    coreshop.resource.installer.documents:
+        alias: 'CoreShop\Bundle\ResourceBundle\Installer\PimcoreDocumentsInstaller'
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\Installer\PimcoreDocumentsInstaller:
+        arguments:
+            - '@kernel'
+        tags:
+           - { name: coreshop.resource.installer, type: documents, priority: 250}
+
+    coreshop.resource.installer.image_thumbnails:
+        alias: 'CoreShop\Bundle\ResourceBundle\Installer\PimcoreImageThumbnailsInstaller'
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\Installer\PimcoreImageThumbnailsInstaller:
+        arguments:
+            - '@kernel'
+        tags:
+            - { name: coreshop.resource.installer, type: image_thumbnail, priority: 300}
+
+    coreshop.resource.installer.permissions:
+        alias: 'CoreShop\Bundle\ResourceBundle\Installer\PimcorePermissionInstaller'
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\Installer\PimcorePermissionInstaller:
+        arguments:
+            - '@kernel'
+            - '@doctrine.dbal.default_connection'
+        tags:
+            - { name: coreshop.resource.installer, type: permissions, priority: 350}
+
+    coreshop.resource.installer.sql:
+        alias: 'CoreShop\Bundle\ResourceBundle\Installer\SqlInstaller'
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\Installer\SqlInstaller:
+        arguments:
+            - '@kernel'
+            - '@doctrine.dbal.default_connection'
+        tags:
+           - { name: coreshop.resource.installer, type: sql, priority: 400}
+
+    CoreShop\Bundle\ResourceBundle\Installer\PimcoreDependantBundleInstaller:
+        arguments:
+            - '@kernel'
+            - '@Pimcore\Extension\Bundle\PimcoreBundleManager'
+        tags:
+            - { name: coreshop.resource.installer, type: dependant_bundles, priority: 550}
+
+    coreshop.resource.installer:
+        alias: 'CoreShop\Bundle\ResourceBundle\Installer\CompositeResourceInstaller'
+        public: true
+
+    CoreShop\Bundle\ResourceBundle\Installer\ResourceInstallerInterface: '@CoreShop\Bundle\ResourceBundle\Installer\CompositeResourceInstaller'
+    CoreShop\Bundle\ResourceBundle\Installer\CompositeResourceInstaller:
+        arguments:
+            - '@coreshop.registry.resource.installers'

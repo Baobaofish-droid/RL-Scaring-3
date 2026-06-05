@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\CoreBundle\Doctrine\ORM;
+
+use CoreShop\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use CoreShop\Component\Core\Repository\CarrierRepositoryInterface;
+use CoreShop\Component\Store\Model\StoreInterface;
+
+class CarrierRepository extends EntityRepository implements CarrierRepositoryInterface
+{
+    public function findForStore(StoreInterface $store): array
+    {
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.stores', 's')
+            ->andWhere('s.id = :store')
+            ->andWhere('o.hideFromCheckout = 0')
+            ->setParameter('store', [$store])
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findForStoreIgnoreHideForCheckout(StoreInterface $store): array
+    {
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.stores', 's')
+            ->andWhere('s.id = :store')
+            ->setParameter('store', [$store])
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+}

@@ -1,0 +1,101 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\AddressBundle\DependencyInjection;
+
+use CoreShop\Bundle\AddressBundle\Attribute\AsCountryContext;
+use CoreShop\Bundle\AddressBundle\Attribute\AsRequestBasedResolverCountryContext;
+use CoreShop\Bundle\AddressBundle\DependencyInjection\Compiler\CompositeCountryContextPass;
+use CoreShop\Bundle\AddressBundle\DependencyInjection\Compiler\CompositeRequestResolverPass;
+use CoreShop\Bundle\ResourceBundle\CoreShopResourceBundle;
+use CoreShop\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractModelExtension;
+use CoreShop\Component\Address\Context\CountryContextInterface;
+use CoreShop\Component\Address\Context\RequestBased\RequestResolverInterface;
+use CoreShop\Component\Registry\Autoconfiguration;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
+final class CoreShopAddressExtension extends AbstractModelExtension implements PrependExtensionInterface
+{
+    public function prepend(ContainerBuilder $container): void
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (array_key_exists('PimcoreStudioBackendBundle', $bundles)) {
+            $container->prependExtensionConfig('pimcore_studio_backend', [
+                'data_object_data_adapter_mapping' => [
+                    'CoreShop\\Bundle\\ResourceBundle\\StudioBackend\\DataAdapter\\CoreShopSelectAdapter' => [
+                        'coreShopCountry',
+                        'coreShopState',
+                        'coreShopAddressIdentifier',
+                    ],
+                    'CoreShop\\Bundle\\ResourceBundle\\StudioBackend\\DataAdapter\\CoreShopMultiSelectAdapter' => [
+                        'coreShopCountryMultiselect',
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    public function load(array $configs, ContainerBuilder $container): void
+    {
+        $configs = $this->processConfiguration($this->getConfiguration([], $container), $configs);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+
+        $this->registerResources(
+            'coreshop',
+            CoreShopResourceBundle::DRIVER_DOCTRINE_ORM,
+            $configs['resources'],
+            $container,
+        );
+        $this->registerPimcoreModels('coreshop', $configs['pimcore'], $container);
+
+        if (array_key_exists('stack', $configs)) {
+            $this->registerStack('coreshop', $configs['stack'], $container);
+        }
+
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (array_key_exists('PimcoreDataHubBundle', $bundles)) {
+            $loader->load('services/data_hub.yml');
+        }
+
+        if (array_key_exists('PimcoreStudioUiBundle', $bundles)) {
+            $loader->load('services/studio.yml');
+        }
+
+        $loader->load('services.yml');
+
+        Autoconfiguration::registerForAutoConfiguration(
+            $container,
+            CountryContextInterface::class,
+            CompositeCountryContextPass::COUNTRY_CONTEXT_SERVICE_TAG,
+            AsCountryContext::class,
+            $configs['autoconfigure_with_attributes'],
+        );
+
+        Autoconfiguration::registerForAutoConfiguration(
+            $container,
+            RequestResolverInterface::class,
+            CompositeRequestResolverPass::COUNTRY_REQUEST_RESOLVER_SERVICE_TAG,
+            AsRequestBasedResolverCountryContext::class,
+            $configs['autoconfigure_with_attributes'],
+        );
+    }
+}

@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Resource\Model;
+
+use Doctrine\Common\Collections\Collection;
+
+interface TranslatableInterface
+{
+    /**
+     * @return Collection|TranslatableInterface[]
+     *
+     * @psalm-return Collection
+     */
+    public function getTranslations(): Collection;
+
+    public function getTranslation(?string $locale = null): TranslationInterface;
+
+    public function hasTranslation(TranslationInterface $translation): bool;
+
+    public function addTranslation(TranslationInterface $translation): void;
+
+    public function removeTranslation(TranslationInterface $translation): void;
+
+    public function setCurrentLocale(string $locale): void;
+
+    public function setFallbackLocale(string $locale): void;
+}

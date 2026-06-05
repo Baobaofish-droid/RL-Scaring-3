@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\ResourceBundle\EventListener;
+
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+
+class BodyListener
+{
+    public function onKernelRequest(RequestEvent $event): void
+    {
+        $request = $event->getRequest();
+        $contentType = $request->headers->get('Content-Type');
+
+        $format = null === $contentType ? $request->getRequestFormat() : $request->getFormat($contentType);
+
+        $content = $request->getContent();
+
+        if ($this->isDecodeable($request)) {
+            if ($format === 'json') {
+                if (!empty($content)) {
+                    $data = @json_decode($content, true);
+
+                    if (is_array($data)) {
+                        $request->request = new InputBag($data);
+                    } else {
+                        throw new BadRequestHttpException('Invalid ' . $format . ' message received');
+                    }
+                }
+            }
+        }
+    }
+
+    protected function isDecodeable(Request $request): bool
+    {
+        if (!in_array($request->getMethod(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+            return false;
+        }
+
+        return !$this->isFormRequest($request);
+    }
+
+    private function isFormRequest(Request $request): bool
+    {
+        if (null === $request->headers->get('Content-Type')) {
+            return false;
+        }
+
+        $contentTypeParts = explode(';', $request->headers->get('Content-Type'));
+
+        if (isset($contentTypeParts[0])) {
+            return in_array($contentTypeParts[0], ['multipart/form-data', 'application/x-www-form-urlencoded']);
+        }
+
+        return false;
+    }
+}

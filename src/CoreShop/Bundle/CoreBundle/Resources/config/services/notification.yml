@@ -1,0 +1,377 @@
+services:
+    # FormTypes für Notification Conditions/Actions
+    # autoconfigure: true sorgt dafür, dass FormTypeInterface-Implementierungen automatisch
+    # mit `form.type` getaggt werden. RegisterStudioFormTypesPass übernimmt sie dann in die
+    # BlockPrefixFormTypeRegistry, sodass /pimcore-studio-form/schema/{blockPrefix} sie kennt.
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\:
+        resource: '../../Form/Type/Notification/'
+        public: true
+        autoconfigure: true
+
+    # Workflow-aware State/Transition FormTypes — explicit definitions override the glob
+    # to inject the matching `state_machine.*` service. Each FormType lists the workflow's
+    # places (State) or transitions (Transition) as ChoiceType options.
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderStateConfigurationType:
+        arguments: ['@state_machine.coreshop_order']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderInvoiceStateConfigurationType:
+        arguments: ['@state_machine.coreshop_order_invoice']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderPaymentStateConfigurationType:
+        arguments: ['@state_machine.coreshop_order_payment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderShippingStateConfigurationType:
+        arguments: ['@state_machine.coreshop_order_shipment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderSaleStateConfigurationType:
+        arguments: ['@state_machine.coreshop_order_sales_type']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\QuoteStateConfigurationType:
+        arguments: ['@state_machine.coreshop_quote']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\InvoiceStateConfigurationType:
+        arguments: ['@state_machine.coreshop_invoice']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\PaymentStateConfigurationType:
+        arguments: ['@state_machine.coreshop_payment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\ShipmentStateConfigurationType:
+        arguments: ['@state_machine.coreshop_shipment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_order']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderInvoiceTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_order_invoice']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderPaymentTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_order_payment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderShippingTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_order_shipment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\QuoteTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_quote']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\InvoiceTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_invoice']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\PaymentTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_payment']
+        tags: [{ name: form.type }]
+
+    CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\ShipmentTransitionConfigurationType:
+        arguments: ['@state_machine.coreshop_shipment']
+        tags: [{ name: form.type }]
+
+    # Notification Rule Conditions
+    #### ORDER
+    ##### Order Invoice State
+    coreshop.notification_rule.condition.order.invoice_state:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - 'invoiceState'
+            - 'orderInvoiceState'
+        tags:
+           - { name: coreshop.notification_rule.condition, type: orderInvoiceState, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderInvoiceStateConfigurationType }
+
+    coreshop.notification_rule.condition.order.order_invoice_transition:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - !php/const CoreShop\Component\Order\OrderInvoiceTransitions::IDENTIFIER
+        tags:
+            - { name: coreshop.notification_rule.condition, type: orderInvoiceTransition, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderInvoiceTransitionConfigurationType }
+
+    ##### Order Payment State
+    coreshop.notification_rule.condition.order.order_payment_state:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - 'paymentState'
+            - 'orderPaymentState'
+        tags:
+            - { name: coreshop.notification_rule.condition, type: orderPaymentState, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderPaymentStateConfigurationType }
+
+    coreshop.notification_rule.condition.order.order_payment_transition:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - !php/const CoreShop\Component\Order\OrderPaymentTransitions::IDENTIFIER
+        tags:
+            - { name: coreshop.notification_rule.condition, type: orderPaymentTransition, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderPaymentTransitionConfigurationType }
+
+
+    ##### Order Shipment State
+    coreshop.notification_rule.condition.order.shipment_state:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - 'shippingState'
+            - 'orderShippingState'
+        tags:
+           - { name: coreshop.notification_rule.condition, type: orderShippingState, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderShippingStateConfigurationType }
+
+    coreshop.notification_rule.condition.order.order_shipment_transition:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - !php/const CoreShop\Component\Order\OrderShipmentTransitions::IDENTIFIER
+        tags:
+            - { name: coreshop.notification_rule.condition, type: orderShippingTransition, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderShippingTransitionConfigurationType }
+
+    ##### Order State
+    coreshop.notification_rule.condition.order.order_state:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - 'orderState'
+            - 'orderState'
+        tags:
+            - { name: coreshop.notification_rule.condition, type: orderState, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderStateConfigurationType }
+
+    coreshop.notification_rule.condition.order.order_sale_state:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - 'saleState'
+            - 'saleState'
+        tags:
+            - { name: coreshop.notification_rule.condition, type: saleState, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderSaleStateConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: saleState, notification-type: quote, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderSaleStateConfigurationType }
+
+    coreshop.notification_rule.condition.order.order_transition:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - !php/const CoreShop\Component\Order\OrderTransitions::IDENTIFIER
+        tags:
+            - { name: coreshop.notification_rule.condition, type: orderTransition, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\OrderTransitionConfigurationType }
+
+    ##### Quote
+    coreshop.notification_rule.condition.quote.quote_state:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - 'quoteState'
+            - 'quoteState'
+        tags:
+            - { name: coreshop.notification_rule.condition, type: quoteState, notification-type: quote, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\QuoteStateConfigurationType }
+
+    coreshop.notification_rule.condition.quote.quote_transition:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+        arguments:
+            - 'CoreShop\Component\Order\Model\OrderInterface'
+            - !php/const CoreShop\Component\Order\QuoteTransitions::IDENTIFIER
+        tags:
+            - { name: coreshop.notification_rule.condition, type: quoteTransition, notification-type: quote, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\QuoteTransitionConfigurationType }
+
+    ##### MISC
+    CoreShop\Component\Core\Notification\Rule\Condition\Order\CarriersChecker:
+        tags:
+            - { name: coreshop.notification_rule.condition, type: carriers, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CarriersConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: carriers, notification-type: quote, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CarriersConfigurationType }
+
+    CoreShop\Component\Core\Notification\Rule\Condition\Order\CommentChecker:
+        tags:
+            - { name: coreshop.notification_rule.condition, type: comment, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Rule\Condition\CommentConfigurationType }
+
+    CoreShop\Component\Core\Notification\Rule\Condition\Order\BackendCreatedChecker:
+        tags:
+            - { name: coreshop.notification_rule.condition, type: backendCreated, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\BackendCreatedConfigurationType }
+
+    CoreShop\Component\Core\Notification\Rule\Condition\Order\BackendUpdateChecker:
+        tags:
+            - { name: coreshop.notification_rule.condition, type: backendUpdated, notification-type: order, form-type: CoreShop\Bundle\RuleBundle\Form\Type\Rule\EmptyConfigurationFormType }
+
+    #### PAYMENT
+    coreshop.notification_rule.condition.payment.payment_state:
+          class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+          arguments:
+              - 'CoreShop\Component\Payment\Model\PaymentInterface'
+              - 'state'
+              - 'paymentState'
+          tags:
+            - { name: coreshop.notification_rule.condition, type: paymentState, notification-type: payment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\PaymentStateConfigurationType }
+
+    coreshop.notification_rule.condition.payment.payment_transition:
+          class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+          arguments:
+              - 'CoreShop\Component\Payment\Model\PaymentInterface'
+              - !php/const CoreShop\Component\Payment\PaymentTransitions::IDENTIFIER
+          tags:
+            - { name: coreshop.notification_rule.condition, type: paymentTransition, notification-type: payment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\PaymentTransitionConfigurationType }
+
+    #### INVOICE
+    coreshop.notification_rule.condition.invoice.state:
+          class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+          arguments:
+              - 'CoreShop\Component\Order\Model\OrderInvoiceInterface'
+              - 'state'
+              - 'invoiceState'
+          tags:
+              - { name: coreshop.notification_rule.condition, type: invoiceState, notification-type: invoice, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\InvoiceStateConfigurationType }
+
+    coreshop.notification_rule.condition.invoice.invoice_transition:
+          class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+          arguments:
+              - 'CoreShop\Component\Order\Model\OrderInvoiceInterface'
+              - !php/const CoreShop\Component\Order\InvoiceTransitions::IDENTIFIER
+          tags:
+            - { name: coreshop.notification_rule.condition, type: invoiceTransition, notification-type: invoice, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\InvoiceTransitionConfigurationType }
+
+    #### SHIPMENT
+    coreshop.notification_rule.condition.shipment.state:
+          class: CoreShop\Component\Core\Notification\Rule\Condition\SimpleStateChecker
+          arguments:
+              - 'CoreShop\Component\Order\Model\OrderShipmentInterface'
+              - 'state'
+              - 'shipmentState'
+          tags:
+              - { name: coreshop.notification_rule.condition, type: shipmentState, notification-type: shipment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\ShipmentStateConfigurationType }
+
+    coreshop.notification_rule.condition.shipment.shipment_transition:
+          class: CoreShop\Component\Core\Notification\Rule\Condition\StateTransitionChecker
+          arguments:
+              - 'CoreShop\Component\Order\Model\OrderShipmentInterface'
+              - !php/const CoreShop\Component\Order\ShipmentTransitions::IDENTIFIER
+          tags:
+            - { name: coreshop.notification_rule.condition, type: shipmentTransition, notification-type: shipment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\ShipmentTransitionConfigurationType }
+
+    #### USER
+    coreshop.notification_rule.condition.user.user_type:
+        class: CoreShop\Component\Core\Notification\Rule\Condition\User\UserTypeChecker
+        tags:
+            - { name: coreshop.notification_rule.condition, type: userType, notification-type: user, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\UserTypeConfigurationType }
+
+    #### MULTIPLE
+    CoreShop\Component\Core\Notification\Rule\Condition\StoresChecker:
+        tags:
+            - { name: coreshop.notification_rule.condition, type: stores, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\StoresConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: stores, notification-type: quote, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\StoresConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: stores, notification-type: payment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\StoresConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: stores, notification-type: invoice, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\StoresConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: stores, notification-type: shipment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\StoresConfigurationType }
+            - { name: coreshop.notification_rule.condition, type: stores, notification-type: user, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Condition\StoresConfigurationType }
+
+    # Notification Rule Actions
+    CoreShop\Component\Core\Notification\Rule\Action\Order\OrderMailActionProcessor:
+        arguments:
+            - '@CoreShop\Component\Core\Order\OrderMailProcessorInterface'
+            - '@coreshop.repository.order'
+        tags:
+            - { name: coreshop.notification_rule.action, type: orderMail, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\OrderMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: orderMail, notification-type: shipment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\OrderMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: orderMail, notification-type: invoice, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\OrderMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: orderMail, notification-type: payment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\OrderMailConfigurationType }
+
+    CoreShop\Component\Notification\Rule\Action\MailActionProcessor:
+        arguments:
+            - '@CoreShop\Component\Pimcore\Mail\MailProcessorInterface'
+        tags:
+            - { name: coreshop.notification_rule.action, type: mail, notification-type: order, form-type: CoreShop\Bundle\NotificationBundle\Form\Type\Rule\Action\MailActionConfigurationType }
+            - { name: coreshop.notification_rule.action, type: mail, notification-type: user, form-type: CoreShop\Bundle\NotificationBundle\Form\Type\Rule\Action\MailActionConfigurationType }
+            - { name: coreshop.notification_rule.action, type: mail, notification-type: payment, form-type: CoreShop\Bundle\NotificationBundle\Form\Type\Rule\Action\MailActionConfigurationType }
+            - { name: coreshop.notification_rule.action, type: mail, notification-type: quote, form-type: CoreShop\Bundle\NotificationBundle\Form\Type\Rule\Action\MailActionConfigurationType }
+            - { name: coreshop.notification_rule.action, type: mail, notification-type: shipment, form-type: CoreShop\Bundle\NotificationBundle\Form\Type\Rule\Action\MailActionConfigurationType }
+            - { name: coreshop.notification_rule.action, type: mail, notification-type: invoice, form-type: CoreShop\Bundle\NotificationBundle\Form\Type\Rule\Action\MailActionConfigurationType }
+
+    CoreShop\Component\Core\Notification\Rule\Action\Order\StoreMailActionProcessor:
+        arguments:
+            - '@CoreShop\Component\Notification\Rule\Action\MailActionProcessor'
+            - '@CoreShop\Bundle\ThemeBundle\Service\ThemeHelperInterface'
+            - '@coreshop.repository.store'
+        tags:
+            - { name: coreshop.notification_rule.action, type: storeMail, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeMail, notification-type: user, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeMail, notification-type: payment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeMail, notification-type: quote, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeMail, notification-type: shipment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeMail, notification-type: invoice, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreMailConfigurationType }
+
+    CoreShop\Component\Core\Notification\Rule\Action\Order\StoreOrderMailActionProcessor:
+        arguments:
+            - '@CoreShop\Component\Core\Notification\Rule\Action\Order\OrderMailActionProcessor'
+            - '@coreshop.repository.store'
+        tags:
+            - { name: coreshop.notification_rule.action, type: storeOrderMail, notification-type: order, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreOrderMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeOrderMail, notification-type: payment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreOrderMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeOrderMail, notification-type: shipment, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreOrderMailConfigurationType }
+            - { name: coreshop.notification_rule.action, type: storeOrderMail, notification-type: invoice, form-type: CoreShop\Bundle\CoreBundle\Form\Type\Notification\Action\StoreOrderMailConfigurationType }
+
+    # Schema Enrichers
+    CoreShop\Bundle\CoreBundle\Form\Schema\NotificationMailActionSchemaEnricher:
+        tags:
+            - { name: coreshop_studio_form.enricher }
+
+    # Listeners -> here the actual magic happens
+    CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener:
+        abstract: true
+        arguments:
+            - '@CoreShop\Component\Notification\Processor\RulesProcessorInterface'
+            - '@CoreShop\Component\Core\Context\ShopperContextInterface'
+
+    CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\OrderWorkflowListener:
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        tags:
+            - { name: kernel.event_listener, event: workflow.coreshop_order.completed, method: applyOrderWorkflowRule }
+            - { name: kernel.event_listener, event: workflow.coreshop_order_invoice.completed, method: applyOrderWorkflowRule }
+            - { name: kernel.event_listener, event: workflow.coreshop_order_shipment.completed, method: applyOrderWorkflowRule }
+            - { name: kernel.event_listener, event: workflow.coreshop_order_payment.completed, method: applyOrderWorkflowRule }
+            - { name: kernel.event_listener, event: workflow.coreshop_order_sales_type.completed, method: applyOrderWorkflowRule }
+            - { name: kernel.event_listener, event: workflow.coreshop_quote.completed, method: applyOrderWorkflowRule }
+
+    CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\OrderCommentsListener:
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        tags:
+            - { name: kernel.event_listener, event: coreshop.note.order_comment.post_add, method: applyOrderCommentAddedNotifications }
+
+    CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\PaymentWorkflowListener:
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        tags:
+            - { name: kernel.event_listener, event: workflow.coreshop_payment.completed, method: applyPaymentWorkflowTransitionCompleted }
+
+    coreshop.notification.listener.invoice:
+        class: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\OrderDocumentWorkflowListener
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        calls:
+            - [setType, ['invoice']]
+        tags:
+            - { name: kernel.event_listener, event: workflow.coreshop_invoice.completed, method: applyDocumentWorkflowTransitionCompleted }
+
+    coreshop.notification.listener.shipment:
+        class: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\OrderDocumentWorkflowListener
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        calls:
+            - [setType, ['shipment']]
+        tags:
+            - { name: kernel.event_listener, event: workflow.coreshop_shipment.completed, method: applyDocumentWorkflowTransitionCompleted }
+
+    CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\CustomerListener:
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        tags:
+            - { name: kernel.event_listener, event: coreshop.user.request_password_reset, method: applyPasswordRequestResetRule }
+            - { name: kernel.event_listener, event: coreshop.customer.register, method: applyRegisterCustomerRule }
+            - { name: kernel.event_listener, event: coreshop.customer.request_newsletter_confirm, method: applyNewsletterConfirmRequestRule }
+            - { name: kernel.event_listener, event: coreshop.customer.newsletter_confirm_post, method: applyNewsletterConfirmed }
+
+    CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\OrderUpdateListener:
+        parent: CoreShop\Bundle\CoreBundle\EventListener\NotificationRules\AbstractNotificationRuleListener
+        tags:
+            - { name: kernel.event_listener, event: coreshop.order.backend_update_save, method: applyOrderUpdateNotification }

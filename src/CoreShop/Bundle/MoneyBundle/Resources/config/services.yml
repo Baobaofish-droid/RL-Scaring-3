@@ -1,0 +1,18 @@
+imports:
+    - { resource: services/form.yml }
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Currency\Formatter\MoneyFormatterInterface: '@CoreShop\Bundle\MoneyBundle\Formatter\MoneyFormatter'
+    CoreShop\Bundle\MoneyBundle\Formatter\MoneyFormatter:
+        arguments:
+            - '%coreshop.currency.decimal_factor%'
+
+    CoreShop\Bundle\MoneyBundle\Twig\FormatMoneyExtension:
+        public: false
+        arguments:
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+        tags:
+            - { name: twig.extension }

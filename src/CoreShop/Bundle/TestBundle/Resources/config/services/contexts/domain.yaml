@@ -1,0 +1,21 @@
+services:
+  _defaults:
+    public: true
+
+  CoreShop\Bundle\TestBundle\Context\Domain\ClassContext:
+    arguments:
+      - '@CoreShop\Bundle\TestBundle\Service\ClassStorage'
+    tags:
+      - { name: fob.context_service }
+
+  CoreShop\Bundle\TestBundle\Context\Domain\PimcoreContext:
+    tags:
+      - { name: fob.context_service }
+
+  CoreShop\Bundle\TestBundle\Context\Domain\SiteContext:
+    tags:
+      - { name: fob.context_service }
+
+  CoreShop\Bundle\TestBundle\Context\Domain\DocumentContext:
+    tags:
+      - { name: fob.context_service }

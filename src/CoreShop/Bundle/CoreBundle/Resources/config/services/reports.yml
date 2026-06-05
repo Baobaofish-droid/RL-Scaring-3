@@ -1,0 +1,123 @@
+services:
+    _defaults:
+        public: true
+
+    coreshop.registry.reports:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        arguments:
+            - 'CoreShop\Component\Core\Report\ReportInterface'
+            - 'coreshop-reports'
+        tags:
+            - { name: coreshop.registry, type_hint: reports }
+
+    coreshop.registry.portlets:
+        class: CoreShop\Component\Registry\ServiceRegistry
+        arguments:
+            - 'CoreShop\Component\Core\Portlet\PortletInterface'
+            - 'coreshop-portlets'
+        tags:
+            - { name: coreshop.registry, type_hint: portlets }
+
+    CoreShop\Bundle\CoreBundle\Report\ProductsReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@coreshop.repository.order'
+            - '@coreshop.repository.order_item'
+            - '@coreshop.repository.stack.product'
+        tags:
+            - { name: coreshop.report, type: products }
+
+    CoreShop\Bundle\CoreBundle\Report\CategoriesReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@coreshop.repository.order'
+            - '@coreshop.repository.category'
+            - '@coreshop.repository.order_item'
+        tags:
+            - { name: coreshop.report, type: categories }
+
+    CoreShop\Bundle\CoreBundle\Report\CustomersReport:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@coreshop.repository.order'
+            - '@coreshop.repository.customer'
+        tags:
+            - { name: coreshop.report, type: customers }
+
+    CoreShop\Bundle\CoreBundle\Report\CartsReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@coreshop.repository.order'
+        tags:
+            - { name: coreshop.report, type: carts }
+            - { name: coreshop.portlet, type: order_cart }
+
+    CoreShop\Bundle\CoreBundle\Report\AbandonedCartsReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@coreshop.repository.order'
+            - '@coreshop.repository.customer'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+        tags:
+            - { name: coreshop.report, type: carts_abandoned }
+
+    CoreShop\Bundle\CoreBundle\Report\ManufacturerReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@coreshop.repository.manufacturer'
+            - '@coreshop.repository.order'
+            - '@coreshop.repository.order_item'
+        tags:
+            - { name: coreshop.report, type: manufacturer }
+
+    CoreShop\Bundle\CoreBundle\Report\SalesReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@coreshop.repository.order'
+        tags:
+            - { name: coreshop.report, type: sales }
+            - { name: coreshop.portlet, type: sales }
+
+    CoreShop\Bundle\CoreBundle\Report\CarriersReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@coreshop.repository.carrier'
+            - '@coreshop.repository.order'
+        tags:
+            - { name: coreshop.report, type: carriers }
+
+    CoreShop\Bundle\CoreBundle\Report\PaymentProvidersReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@coreshop.repository.payment_provider'
+            - '@coreshop.repository.order'
+        tags:
+            - { name: coreshop.report, type: payment_providers }
+
+    CoreShop\Bundle\CoreBundle\Report\VouchersReport:
+        arguments:
+            - '@coreshop.repository.store'
+            - '@doctrine.dbal.default_connection'
+            - '@CoreShop\Component\Currency\Formatter\MoneyFormatterInterface'
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@coreshop.repository.order'
+        tags:
+            - { name: coreshop.report, type: vouchers }

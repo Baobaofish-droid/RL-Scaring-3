@@ -1,0 +1,72 @@
+imports:
+    - { resource: services/context.yml }
+    - { resource: services/storage.yml }
+    - { resource: services/form.yml }
+    - { resource: services/form_extension.yml }
+    - { resource: services/checkout.yml }
+    - { resource: services/listeners.yml }
+    - { resource: services/product.yml }
+    - { resource: services/shipping.yml }
+    - { resource: services/rules.yml }
+    - { resource: services/installer.yml }
+    - { resource: services/notification.yml }
+    - { resource: services/profiler.yml }
+    - { resource: services/order.yml }
+    - { resource: services/tracking.yml }
+    - { resource: services/customer.yml }
+    - { resource: services/settings.yml }
+    - { resource: services/cart-processor.yml }
+    - { resource: services/reports.yml }
+    - { resource: services/pimcore_installer.yml }
+    - { resource: services/inventory.yml }
+    - { resource: services/handler.yml }
+    - { resource: services/commands.yml }
+    - { resource: services/locale.yml }
+    - { resource: services/payment.yml }
+    - { resource: services/routing.yml }
+    - { resource: services/product-quantity-price-rules.yml }
+    - { resource: services/validators.yml }
+    - { resource: services/product-store-values.yml }
+    - { resource: services/menu.yml }
+    - { resource: services/shipping-taxation.yml }
+    - { resource: services/taxation.yml }
+    - { resource: services/fixtures.yaml }
+
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\CoreBundle\Security\ObjectUserProvider:
+        arguments:
+            - '@coreshop.repository.user'
+            - '%coreshop.model.user.class%'
+
+    coreshop.security.user.password_hasher_factories:
+        class: Pimcore\Security\Hasher\Factory\UserAwarePasswordHasherFactory
+        arguments:
+            - Pimcore\Security\Hasher\PasswordFieldHasher
+            - ['password']
+
+    CoreShop\Component\Core\Configuration\ConfigurationServiceInterface: '@CoreShop\Component\Core\Configuration\ConfigurationService'
+    CoreShop\Component\Core\Configuration\ConfigurationService:
+        decorates: CoreShop\Component\Configuration\Service\ConfigurationService
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@coreshop.repository.configuration'
+            - '@coreshop.factory.configuration'
+            - '@CoreShop\Component\Store\Context\StoreContextInterface'
+
+    CoreShop\Component\Core\Provider\AddressProviderInterface: '@CoreShop\Component\Core\Provider\StoreBasedAddressProvider'
+    CoreShop\Component\Core\Provider\StoreBasedAddressProvider:
+        arguments:
+            - '@coreshop.factory.address'
+            - '@CoreShop\Component\Core\Context\ShopperContextInterface'
+
+    CoreShop\Component\Core\Provider\DefaultTaxAddressProviderInterface: '@CoreShop\Component\Core\Provider\ContextBasedDefaultTaxAddressProvider'
+    CoreShop\Component\Core\Provider\ContextBasedDefaultTaxAddressProvider:
+        arguments:
+            - '@coreshop.factory.address'
+
+    CoreShop\Bundle\CoreBundle\Security\AccessVoter:
+        tags:
+            - { name: security.voter }

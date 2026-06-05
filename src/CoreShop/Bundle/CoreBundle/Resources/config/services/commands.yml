@@ -1,0 +1,61 @@
+services:
+    CoreShop\Bundle\CoreBundle\Command\AbstractInstallCommand:
+        arguments:
+            - '@kernel'
+            - '@CoreShop\Bundle\CoreBundle\Installer\Checker\CommandDirectoryChecker'
+
+    CoreShop\Bundle\CoreBundle\Command\InstallResourcesCommand:
+        parent: CoreShop\Bundle\CoreBundle\Command\AbstractInstallCommand
+        tags:
+          - { name: console.command, command: coreshop:install:resources }
+
+    CoreShop\Bundle\CoreBundle\Command\InstallDatabaseCommand:
+        arguments:
+            - '@kernel'
+            - '@CoreShop\Bundle\CoreBundle\Installer\Checker\CommandDirectoryChecker'
+            - '@CoreShop\Bundle\CoreBundle\Installer\Provider\DatabaseSetupCommandsProvider'
+        tags:
+          - { name: console.command, command: coreshop:install:database }
+
+    CoreShop\Bundle\CoreBundle\Command\InstallDemoCommand:
+        parent: CoreShop\Bundle\CoreBundle\Command\InstallResourcesCommand
+        tags:
+          - { name: console.command, command: coreshop:install:demo }
+
+    CoreShop\Bundle\CoreBundle\Command\InstallFixturesCommand:
+        parent: CoreShop\Bundle\CoreBundle\Command\InstallResourcesCommand
+        tags:
+          - { name: console.command, command: coreshop:install:fixtures }
+
+    CoreShop\Bundle\CoreBundle\Command\InstallFoldersCommand:
+        arguments:
+            - '@kernel'
+            - '@CoreShop\Bundle\CoreBundle\Installer\Checker\CommandDirectoryChecker'
+            - '@CoreShop\Bundle\CoreBundle\Installer\Executor\FolderInstallerProvider'
+        tags:
+          - { name: console.command, command: coreshop:install:folders }
+
+    CoreShop\Bundle\CoreBundle\Command\InstallCommand:
+        parent: CoreShop\Bundle\CoreBundle\Command\InstallResourcesCommand
+        arguments:
+            - '@CoreShop\Bundle\CoreBundle\Installer'
+        tags:
+          - { name: console.command, command: coreshop:install }
+
+    CoreShop\Bundle\CoreBundle\Command\MigrateCommand:
+        tags:
+            - { name: console.command, command: coreshop:migrate }
+
+    CoreShop\Bundle\CoreBundle\Command\MigrationGenerateCommand:
+        tags:
+            - { name: console.command, command: coreshop:migration:generate }
+
+    CoreShop\Bundle\CoreBundle\Command\SetupStatesCommand:
+        arguments:
+            - '@coreshop.repository.country'
+            - '@coreshop.repository.state'
+            - '@coreshop.factory.state'
+            - '@doctrine.orm.entity_manager'
+        tags:
+            - { name: console.command, command: coreshop:setup:states }
+

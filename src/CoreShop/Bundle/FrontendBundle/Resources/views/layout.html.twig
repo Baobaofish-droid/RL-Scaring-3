@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale|slice(0, 2) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {% block layout_head %}
+        {{ pimcore_head_title('CoreShop') }}
+        {{ pimcore_head_meta() }}
+    {% endblock %}
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app', null, 'coreshop_frontend') }}
+    {% endblock %}
+
+    {% block base_scripts %}
+        {{ encore_entry_script_tags('app', null, 'coreshop_frontend') }}
+    {% endblock %}
+</head>
+
+<body>
+{% block header %}
+    {% include '@CoreShopFrontend/Header/_header.html.twig' %}
+{% endblock %}
+
+<main class="main-container container pt-4">
+    {% include '@CoreShopFrontend/Common/global_flash_messages.html.twig' %}
+
+    {% block content %}
+    {% endblock %}
+</main>
+
+{% block footer %}
+    {% include '@CoreShopFrontend/_footer.html.twig' %}
+{% endblock %}
+
+</body>
+</html>

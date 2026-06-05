@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Core\Shipping\Discover;
+
+use CoreShop\Component\Address\Model\AddressInterface;
+use CoreShop\Component\Core\Model\OrderInterface;
+use CoreShop\Component\Core\Repository\CarrierRepositoryInterface;
+use CoreShop\Component\Shipping\Model\ShippableInterface;
+use CoreShop\Component\Shipping\Resolver\CarriersResolverInterface;
+use CoreShop\Component\Shipping\Validator\ShippableCarrierValidatorInterface;
+
+final class StoreBasedShippableCarriersDiscovery implements CarriersResolverInterface
+{
+    public function __construct(
+        private CarriersResolverInterface $inner,
+        private CarrierRepositoryInterface $carrierRepository,
+        private ShippableCarrierValidatorInterface $shippableCarrierValidator,
+    ) {
+    }
+
+    public function resolveCarriers(ShippableInterface $shippable, AddressInterface $address): array
+    {
+        if ($shippable instanceof OrderInterface) {
+            if ($shippable->getBackendCreated()) {
+                $carriers = $this->carrierRepository->findForStoreIgnoreHideForCheckout($shippable->getStore());
+            } else {
+                $carriers = $this->carrierRepository->findForStore($shippable->getStore());
+            }
+
+            $availableCarriers = [];
+
+            foreach ($carriers as $carrier) {
+                if ($this->shippableCarrierValidator->isCarrierValid($carrier, $shippable, $address)) {
+                    $availableCarriers[] = $carrier;
+                }
+            }
+
+            return $availableCarriers;
+        }
+
+        return $this->inner->resolveCarriers($shippable, $address);
+    }
+}

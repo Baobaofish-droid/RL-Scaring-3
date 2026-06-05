@@ -1,0 +1,94 @@
+imports:
+    - { resource: services/grid.yml }
+    - { resource: services/dynamic_dropdown.yml }
+    - { resource: services/pimcore.yml }
+    - { resource: services/link_generator.yaml }
+    - { resource: services/print.yaml }
+
+parameters:
+    coreshop.admin.route.base: /{backend}/coreshop
+    coreshop.admin.route.backend_requirement: (admin|(pimcore-studio\/api))
+
+services:
+    _defaults:
+        public: true
+        autowire: true
+
+    CoreShop\Component\Pimcore\DataObject\ClassInstallerInterface: '@CoreShop\Component\Pimcore\DataObject\ClassInstaller'
+    CoreShop\Component\Pimcore\DataObject\ClassInstaller: ~
+
+    CoreShop\Component\Pimcore\DataObject\ObjectServiceInterface: '@CoreShop\Component\Pimcore\DataObject\ObjectService'
+    CoreShop\Component\Pimcore\DataObject\ObjectService: ~
+
+    CoreShop\Component\Pimcore\DataObject\NoteServiceInterface: '@CoreShop\Component\Pimcore\DataObject\NoteService'
+    CoreShop\Component\Pimcore\DataObject\NoteService:
+        arguments:
+            - '@event_dispatcher'
+            - '@monolog.logger.pimcore'
+
+    CoreShop\Component\Pimcore\DataObject\ObjectClonerInterface: '@CoreShop\Component\Pimcore\DataObject\ObjectCloner'
+    CoreShop\Component\Pimcore\DataObject\ObjectCloner: ~
+
+    CoreShop\Component\Pimcore\Mail\MailProcessorInterface: '@CoreShop\Bundle\PimcoreBundle\Mail\MailProcessor'
+    CoreShop\Bundle\PimcoreBundle\Mail\MailProcessor:
+        arguments:
+            - '@event_dispatcher'
+
+    coreshop.expression_language:
+        class: Symfony\Component\ExpressionLanguage\ExpressionLanguage
+        arguments:
+            - '@cache.system'
+
+    CoreShop\Component\Pimcore\ExpressionLanguage\PimcoreLanguageProvider:
+        tags:
+            - { name: coreshop.expression_language_provider }
+
+    CoreShop\Component\Pimcore\ExpressionLanguage\PHPFunctionsProvider:
+        tags:
+            - { name: coreshop.expression_language_provider }
+
+    coreshop.expression_language.provider.symfony_container:
+        class: Symfony\Component\DependencyInjection\ExpressionLanguageProvider
+        tags:
+            - { name: coreshop.expression_language_provider }
+
+    CoreShop\Component\Pimcore\Slug\SluggableSluggerInterface: '@CoreShop\Component\Pimcore\Slug\SluggableSlugger'
+    CoreShop\Component\Pimcore\Slug\SluggableSlugger:
+        arguments:
+            - '@Symfony\Component\String\Slugger\SluggerInterface'
+
+    CoreShop\Component\Pimcore\Slug\DataObjectSiteSlugGeneratorInterface: '@CoreShop\Component\Pimcore\Slug\DataObjectSiteSlugGenerator'
+    CoreShop\Component\Pimcore\Slug\DataObjectSiteSlugGenerator:
+        arguments:
+            - '@CoreShop\Component\Pimcore\Slug\SluggableSluggerInterface'
+            - '@event_dispatcher'
+
+    CoreShop\Component\Pimcore\Slug\DataObjectSlugGeneratorInterface: '@CoreShop\Component\Pimcore\Slug\DataObjectSlugGenerator'
+    CoreShop\Component\Pimcore\Slug\DataObjectSlugGenerator:
+        arguments:
+            - '@CoreShop\Component\Pimcore\Slug\DataObjectSiteSlugGeneratorInterface'
+
+    CoreShop\Bundle\PimcoreBundle\EventListener\SluggableListener:
+        arguments:
+            - '@CoreShop\Component\Pimcore\Slug\DataObjectSlugGeneratorInterface'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    CoreShop\Component\Pimcore\Slug\SluggableLinkGenerator:
+        arguments:
+            - '@Pimcore\Http\Request\Resolver\SiteResolver'
+            - '@Symfony\Component\HttpFoundation\RequestStack'
+        tags:
+            - { name: coreshop.link_generator, type: sluggable, priority: 20 }
+
+    CoreShop\Component\Pimcore\Twig\Extension\DataObjectRoutingExtension:
+        tags:
+            - { name: twig.extension }
+
+    CoreShop\Bundle\PimcoreBundle\Command\AppMigrateCommand:
+        tags:
+            - { name: console.command, command: coreshop:app:migrate }
+
+    CoreShop\Bundle\PimcoreBundle\Command\AppMigrationGenerateCommand:
+        tags:
+            - { name: console.command, command: coreshop:app:migration:generate }

@@ -1,0 +1,9 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\NotificationBundle\EventListener\NotificationRuleEventListener:
+        arguments:
+            - '@coreshop.repository.notification_rule'
+        tags:
+            - { name: kernel.event_listener, event: coreshop.notification_rule.pre_create, method: preCreate }

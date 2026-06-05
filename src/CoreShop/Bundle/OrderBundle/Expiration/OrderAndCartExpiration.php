@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\OrderBundle\Expiration;
+
+use CoreShop\Component\StorageList\Expiration\StorageListExpirationInterface;
+
+final class OrderAndCartExpiration implements StorageListExpirationInterface
+{
+    public function __construct(
+        private OrderExpiration $orderExpiration,
+        private CartExpiration $cartExpiration,
+    ) {
+    }
+
+    public function expire(int $days, array $params = []): void
+    {
+        $this->orderExpiration->expire($params['order']['days'], $params['order']['params'] ?? []);
+        $this->cartExpiration->expire($params['cart']['days'], $params['cart']['params'] ?? []);
+    }
+}

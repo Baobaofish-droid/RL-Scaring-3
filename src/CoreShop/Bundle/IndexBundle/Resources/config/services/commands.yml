@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Bundle\IndexBundle\Command\IndexCommand:
+        arguments:
+          - '@coreshop.repository.index'
+          - '@CoreShop\Component\Index\Service\IndexUpdaterServiceInterface'
+          - '@event_dispatcher'
+        tags:
+          - { name: console.command, command: coreshop:index }

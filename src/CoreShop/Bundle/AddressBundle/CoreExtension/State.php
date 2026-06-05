@@ -1,0 +1,55 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\AddressBundle\CoreExtension;
+
+use CoreShop\Bundle\ResourceBundle\CoreExtension\Select;
+use CoreShop\Component\Address\Model\StateInterface;
+use CoreShop\Component\Resource\Repository\RepositoryInterface;
+
+/**
+ * @psalm-suppress InvalidReturnType, InvalidReturnStatement
+ */
+class State extends Select
+{
+    public string $fieldtype = 'coreShopState';
+
+    public function getFieldType(): string
+    {
+        return $this->fieldtype;
+    }
+
+    protected function getRepository(): RepositoryInterface
+    {
+        return \Pimcore::getContainer()->get('coreshop.repository.state');
+    }
+
+    protected function getModel(): string
+    {
+        return \Pimcore::getContainer()->getParameter('coreshop.model.state.class');
+    }
+
+    protected function getInterface(): string
+    {
+        return '\\' . StateInterface::class;
+    }
+
+    protected function getNullable(): bool
+    {
+        return true;
+    }
+}

@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+use Pimcore\HttpKernel\BundleCollection\BundleCollection;
+use Pimcore\Kernel as PimcoreKernel;
+
+class Kernel extends PimcoreKernel
+{
+    public function registerBundlesToCollection(BundleCollection $collection): void
+    {
+        parent::registerBundlesToCollection($collection);
+
+        $collection->addBundle(new \CoreShop\Bundle\CoreBundle\CoreShopCoreBundle(), 10);
+        $collection->addBundle(new \CoreShop\Bundle\FrontendBundle\CoreShopFrontendBundle(), 1800);
+        $collection->addBundle(new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle());
+        $collection->addBundle(new \CoreShop\Bundle\TestBundle\CoreShopTestBundle(), 0);
+    }
+
+    protected function getEnvironmentsForDevBundles(): array
+    {
+        return array_merge(
+            ['test_precision'],
+            parent::getEnvironmentsForDevBundles(),
+        );
+    }
+
+    public function boot(): void
+    {
+        \Pimcore::setKernel($this);
+
+        parent::boot();
+    }
+}

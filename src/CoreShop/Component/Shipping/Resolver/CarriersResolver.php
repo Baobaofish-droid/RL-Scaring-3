@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Component\Shipping\Resolver;
+
+use CoreShop\Component\Address\Model\AddressInterface;
+use CoreShop\Component\Resource\Repository\RepositoryInterface;
+use CoreShop\Component\Shipping\Model\CarrierInterface;
+use CoreShop\Component\Shipping\Model\ShippableInterface;
+use CoreShop\Component\Shipping\Validator\ShippableCarrierValidatorInterface;
+
+final class CarriersResolver implements CarriersResolverInterface
+{
+    public function __construct(
+        private RepositoryInterface $carrierRepository,
+        private ShippableCarrierValidatorInterface $shippableCarrierValidator,
+    ) {
+    }
+
+    public function resolveCarriers(ShippableInterface $shippable, AddressInterface $address): array
+    {
+        /**
+         * @var CarrierInterface[] $carriers
+         */
+        $carriers = $this->carrierRepository->findAll();
+        $availableCarriers = [];
+
+        foreach ($carriers as $carrier) {
+            if ($this->shippableCarrierValidator->isCarrierValid($carrier, $shippable, $address)) {
+                $availableCarriers[] = $carrier;
+            }
+        }
+
+        return $availableCarriers;
+    }
+}

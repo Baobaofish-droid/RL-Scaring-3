@@ -1,0 +1,12 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Core\Locale\Context\PimcoreAdminLocaleContext:
+        arguments:
+            - '@Pimcore\Http\Request\Resolver\PimcoreContextResolver'
+            - '@Pimcore\Security\User\TokenStorageUserResolver'
+            - '@coreshop.translation_locale_provider'
+            - '@request_stack'
+        tags:
+            - { name: coreshop.context.locale, priority: 300 }

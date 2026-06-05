@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Behat\Page\Frontend\Account;
+
+use CoreShop\Bundle\TestBundle\Page\Frontend\FrontendPageInterface;
+
+interface RequestPasswordResetPageInterface extends FrontendPageInterface
+{
+    public function checkValidationMessageFor(string $element, string $message): bool;
+
+    public function reset(): void;
+
+    public function specifyEmail(?string $email): void;
+
+    public function specifyUsername(?string $username): void;
+}

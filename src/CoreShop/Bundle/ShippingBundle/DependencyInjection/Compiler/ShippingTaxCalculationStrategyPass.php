@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * CoreShop
+ *
+ * This source file is available under the terms of the
+ * CoreShop Commercial License (CCL)
+ * Full copyright and license information is available in
+ * LICENSE.md which is distributed with this source code.
+ *
+ * @copyright  Copyright (c) CoreShop GmbH (https://www.coreshop.com)
+ * @license    CoreShop Commercial License (CCL)
+ *
+ */
+
+namespace CoreShop\Bundle\ShippingBundle\DependencyInjection\Compiler;
+
+use CoreShop\Component\Registry\RegisterRegistryTypePass;
+
+final class ShippingTaxCalculationStrategyPass extends RegisterRegistryTypePass
+{
+    public const string SHIPPING_TAX_STRATEGY_TAG = 'coreshop.shipping.tax_calculation_strategy';
+
+    public function __construct(
+        ) {
+        parent::__construct(
+            'coreshop.registry.shipping.tax_calculation_strategies',
+            'coreshop.form_registry.shipping.tax_calculation_strategies',
+            'coreshop.shipping.tax_calculation_strategies',
+            self::SHIPPING_TAX_STRATEGY_TAG,
+        );
+    }
+}

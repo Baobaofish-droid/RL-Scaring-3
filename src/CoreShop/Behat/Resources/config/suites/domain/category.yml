@@ -1,0 +1,23 @@
+default:
+    suites:
+        domain_category:
+            contexts:
+                - coreshop.behat.context.hook.pimcore_setup
+                - coreshop.behat.context.hook.coreshop_setup
+
+                - CoreShop\Bundle\TestBundle\Context\Hook\DoctrineORMContext
+                - coreshop.behat.context.hook.pimcore_dao
+
+                - CoreShop\Bundle\TestBundle\Context\Transform\SharedStorageContext
+                - coreshop.behat.context.transform.store
+                - coreshop.behat.context.transform.product
+                - coreshop.behat.context.transform.category
+
+                - coreshop.behat.context.setup.store
+                - coreshop.behat.context.setup.category
+                - coreshop.behat.context.setup.product
+
+                - coreshop.behat.context.domain.category
+                - coreshop.behat.context.domain.link_generator
+            filters:
+                tags: "@domain&&@category"

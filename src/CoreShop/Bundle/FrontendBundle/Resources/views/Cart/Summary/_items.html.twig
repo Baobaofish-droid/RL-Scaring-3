@@ -1,0 +1,27 @@
+<div class="shopping-cart-table">
+    {{ form_start(form, {}) }}
+    <div class="row">
+
+        <div class="col-12 col-xl-8">
+            {{ form_errors(form) }}
+            <div  {{ coreshop_test_html_attribute('cart-items') }}>
+                {% for item in cart.items %}
+                    {% include '@CoreShopFrontend/Cart/Summary/_item.html.twig' with {'item': item, 'form': form.items[loop.index0]} %}
+                {% endfor %}
+            </div>
+
+            {% include '@CoreShopFrontend/Cart/Summary/_update.html.twig' %}
+        </div>
+        <div class="col-12 col-xl-4">
+            {% include '@CoreShopFrontend/Cart/Summary/_summary.html.twig' %}
+        </div>
+    </div>
+
+   {{ form_row(form._token) }}
+   {{ form_end(form, {'render_rest': false}) }}
+
+</div>
+
+{% if cart.shipping(false) is null and is_granted('CORESHOP_CART_CALCULATE_SHIPMENT') %}
+    {{ render(controller('CoreShop\\Bundle\\FrontendBundle\\Controller\\CartController:shipmentCalculationAction')) }}
+{% endif %}

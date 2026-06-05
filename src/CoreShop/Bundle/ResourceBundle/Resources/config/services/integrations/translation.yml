@@ -1,0 +1,30 @@
+services:
+    _defaults:
+        public: true
+
+    CoreShop\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface: '@CoreShop\Component\Resource\Translation\Provider\PimcoreTranslationLocaleProvider'
+    CoreShop\Component\Resource\Translation\Provider\PimcoreTranslationLocaleProvider: ~
+
+    CoreShop\Bundle\ResourceBundle\EventListener\ORMTranslatableListener:
+        arguments:
+            - '@CoreShop\Component\Resource\Metadata\RegistryInterface'
+            - '@CoreShop\Component\Resource\Translation\TranslatableEntityLocaleAssignerInterface'
+        tags:
+            - { name: doctrine.event_listener, connection: default, event: loadClassMetadata, priority: 99 }
+            - { name: doctrine.event_listener, connection: default, event: postLoad, priority: 99 }
+
+    CoreShop\Component\Resource\Translation\TranslatableEntityLocaleAssignerInterface: '@CoreShop\Component\Resource\Translation\TranslatableEntityLocaleAssigner'
+    CoreShop\Component\Resource\Translation\TranslatableEntityLocaleAssigner:
+        arguments:
+            - '@CoreShop\Component\Locale\Context\LocaleContextInterface'
+            - '@CoreShop\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface'
+
+    CoreShop\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType:
+        arguments:
+            - '@CoreShop\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface'
+        tags:
+            - { name: form.type }
+
+    CoreShop\Bundle\ResourceBundle\Form\Type\PimcoreClassChoiceType:
+        tags:
+            - { name: form.type }
